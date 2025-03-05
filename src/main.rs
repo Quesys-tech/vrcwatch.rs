@@ -55,7 +55,10 @@ fn main() {
 
     loop {
         let now = Local::now();
-        println!("{}", now);
+
+        if cli.verbose {
+            println!("{}:{}:{}", now.hour(), now.minute(), now.second());
+        }
 
         let second_fa = (now.second() as f64) / 60.0;
         let minute_fa = (now.minute() as f64 + second_fa) / 60.0;
