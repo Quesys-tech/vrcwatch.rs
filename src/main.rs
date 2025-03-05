@@ -1,13 +1,10 @@
-use chrono::{Local, Timelike};
 use std::error::Error;
-use std::net::Ipv4Addr;
-use std::net::{SocketAddrV4, UdpSocket};
-use std::thread;
-use std::time::Duration;
+use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
+use chrono::{Local, Timelike};
 use clap::Parser;
-use rosc::encoder;
-use rosc::{OscMessage, OscPacket, OscType};
+use rosc::{encoder, OscMessage, OscPacket, OscType};
+use tokio::time::{sleep, Duration};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -43,7 +40,50 @@ impl OscSender {
     }
 }
 
-fn main() {
+async fn tick(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
+    let now = Local::now();
+
+    let second_fa = (now.second() as f64) / 60.0;
+    let minute_fa = (now.minute() as f64 + second_fa) / 60.0;
+    let hour_fa = (now.hour() as f64 + minute_fa) / 24.0;
+
+    let second_f_msg = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
+        args: vec![OscType::Float(second_fa as f32)],
+    });
+    let minute_f_msg = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
+        args: vec![OscType::Float(minute_fa as f32)],
+    });
+    let hour_f_msg = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DateTimeHourFA".to_string(),
+        args: vec![OscType::Float(hour_fa as f32)],
+    });
+
+    sender.send(&second_f_msg)?;
+    sender.send(&minute_f_msg)?;
+    sender.send(&hour_f_msg)?;
+    if cli.verbose {
+        println!("{}:{}:{}", now.hour(), now.minute(), now.second());
+    }
+    Ok(())
+}
+
+async fn trigger_at_second_change(cli: &Cli, sender: &OscSender) {
+    loop {
+        let now = Local::now();
+        let sub_second = now.timestamp_subsec_nanos();
+        let sleep_duration = Duration::from_nanos(1_000_000_000 - sub_second as u64);
+        if cli.verbose {
+            println!("Sleeping for {}ms", sleep_duration.as_millis());
+        }
+        sleep(sleep_duration).await;
+        tick(&cli, &sender).await.unwrap();
+    }
+}
+
+#[tokio::main]
+async fn main() {
     let cli = Cli::parse();
 
     if cli.verbose {
@@ -52,38 +92,5 @@ fn main() {
     println!("Destination port: {}:{}", cli.address, cli.port);
 
     let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
-
-    loop {
-        let now = Local::now();
-
-        if cli.verbose {
-            println!("{}:{}:{}", now.hour(), now.minute(), now.second());
-        }
-
-        let second_fa = (now.second() as f64) / 60.0;
-        let minute_fa = (now.minute() as f64 + second_fa) / 60.0;
-        let hour_fa = (now.hour() as f64 + minute_fa) / 24.0;
-
-        let hour_f_msg = OscPacket::Message(OscMessage {
-            addr: "/avatar/parameters/DateTimeHourFA".to_string(),
-            args: vec![OscType::Float(hour_fa as f32)],
-        });
-        sender.send(&hour_f_msg).expect("Error sending OSC message");
-        let minute_f_msg = OscPacket::Message(OscMessage {
-            addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
-            args: vec![OscType::Float(minute_fa as f32)],
-        });
-        sender
-            .send(&minute_f_msg)
-            .expect("Error sending OSC message");
-        let second_f_msg = OscPacket::Message(OscMessage {
-            addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
-            args: vec![OscType::Float(second_fa as f32)],
-        });
-        sender
-            .send(&second_f_msg)
-            .expect("Error sending OSC message");
-
-        thread::sleep(Duration::from_millis(200));
-    }
+    trigger_at_second_change(&cli, &sender).await;
 }
