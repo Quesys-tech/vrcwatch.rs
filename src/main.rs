@@ -40,7 +40,7 @@ impl OscSender {
     }
 }
 
-async fn tick(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
+async fn tick_clock(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
 
     let second_fa = (now.second() as f64) / 60.0;
@@ -78,7 +78,7 @@ async fn trigger_at_second_change(cli: &Cli, sender: &OscSender) {
             println!("Sleeping for {}ms", sleep_duration.as_millis());
         }
         sleep(sleep_duration).await;
-        tick(&cli, &sender).await.unwrap();
+        tick_clock(&cli, &sender).await.unwrap();
     }
 }
 
