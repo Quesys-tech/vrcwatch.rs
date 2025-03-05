@@ -54,22 +54,12 @@ fn main() {
     let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
 
     loop {
-        let x = 0.1;
-        let y = 0.2;
-
-        let message = OscPacket::Message(OscMessage {
-            addr: "/3/xy1".to_string(),
-            args: vec![OscType::Float(x), OscType::Float(y)],
-        });
-        sender.send(&message).expect("Error sending OSC message");
-
         let now = Local::now();
         println!("{}", now);
 
-        // let msec_f = now.nanosecond() as f64 / 1_000_000_000.0;
         let second_fa = (now.second() as f64) / 60.0;
         let minute_fa = (now.minute() as f64 + second_fa) / 60.0;
-        let hour_fa = (now.hour() as f64 +minute_fa) / 24.0;
+        let hour_fa = (now.hour() as f64 + minute_fa) / 24.0;
 
         let hour_f_msg = OscPacket::Message(OscMessage {
             addr: "/avatar/parameters/DateTimeHourFA".to_string(),
