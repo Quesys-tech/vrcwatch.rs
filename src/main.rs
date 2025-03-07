@@ -9,13 +9,13 @@ use tokio::time::{sleep, Duration};
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(short, long, default_value = "127.0.0.1")]
+    #[arg(short, long, default_value = "127.0.0.1", help = "destination IP address")]
     address: Ipv4Addr,
-    #[arg(short, long, default_value = "9000")]
+    #[arg(short, long, default_value = "9000", help = "destination port")]
     port: u16,
-    #[arg(short, long)]
+    #[arg(short, long, help = "enable verbose mode")]
     verbose: bool,
-    #[arg(short, long)]
+    #[arg(short, long, help = "demo mode, the watch shows 10:08:42")]
     demo: bool,
 }
 
