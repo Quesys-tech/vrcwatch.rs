@@ -4,12 +4,18 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 use chrono::{Local, TimeZone, Timelike};
 use clap::Parser;
 use rosc::{encoder, OscMessage, OscPacket, OscType};
+use tokio::signal;
 use tokio::time::{sleep, Duration};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(short, long, default_value = "127.0.0.1", help = "destination IP address")]
+    #[arg(
+        short,
+        long,
+        default_value = "127.0.0.1",
+        help = "destination IP address"
+    )]
     address: Ipv4Addr,
     #[arg(short, long, default_value = "9000", help = "destination port")]
     port: u16,
@@ -42,7 +48,7 @@ impl OscSender {
     }
 }
 
-async fn tick_clock(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
+async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
 
     let second_fa = (now.second() as f64) / 60.0;
@@ -71,7 +77,7 @@ async fn tick_clock(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
-async fn trigger_at_second_change(cli: &Cli, sender: &OscSender) {
+async fn update_second_change(cli: Cli, sender: OscSender) {
     loop {
         let now = Local::now();
         let sub_second = now.timestamp_subsec_nanos();
@@ -80,7 +86,7 @@ async fn trigger_at_second_change(cli: &Cli, sender: &OscSender) {
             println!("Sleeping for {}ms", sleep_duration.as_millis());
         }
         sleep(sleep_duration).await;
-        tick_clock(&cli, &sender).await.unwrap();
+        tick_watch(&cli, &sender).await.unwrap();
     }
 }
 
@@ -96,15 +102,19 @@ async fn main() {
     let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
     match cli.demo {
         true => {
-            set_demo_mode(&sender).await;
+            tokio::spawn(demo_mode(sender));
         }
         false => {
-            trigger_at_second_change(&cli, &sender).await;
+            tokio::spawn(update_second_change(cli, sender));
         }
     }
+    println!("Press Ctrl-C to exit");
+    let mut sigint_handler = signal::windows::ctrl_c().unwrap();
+    sigint_handler.recv().await;
+    println!("Exiting...");
 }
 
-async fn set_demo_mode(sender: &OscSender) {
+async fn demo_mode(sender: OscSender) {
     let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
 
     println!("Display mode: fixed at {}", display_time);
@@ -126,7 +136,10 @@ async fn set_demo_mode(sender: &OscSender) {
         args: vec![OscType::Float(hour_fa as f32)],
     });
 
-    sender.send(&second_f_msg).unwrap();
-    sender.send(&minute_f_msg).unwrap();
-    sender.send(&hour_f_msg).unwrap();
+    loop {
+        sender.send(&second_f_msg).unwrap();
+        sender.send(&minute_f_msg).unwrap();
+        sender.send(&hour_f_msg).unwrap();
+        sleep(Duration::from_secs(1)).await;
+    }
 }
