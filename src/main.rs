@@ -130,7 +130,10 @@ async fn demo_mode(sender: OscSender) {
         args: vec![OscType::Float(hour_fa as f32)],
     });
 
-    sender.send(&second_f_msg).unwrap();
-    sender.send(&minute_f_msg).unwrap();
-    sender.send(&hour_f_msg).unwrap();
+    loop {
+        sender.send(&second_f_msg).unwrap();
+        sender.send(&minute_f_msg).unwrap();
+        sender.send(&hour_f_msg).unwrap();
+        sleep(Duration::from_secs(1)).await;
+    }
 }
