@@ -36,7 +36,7 @@ impl OscSender {
         dst_address: Ipv4Addr,
         dst_port: u16,
     ) -> OscSender {
-        let socket = UdpSocket::bind(format!("{}:{}", src_address, src_port))
+        let socket = UdpSocket::bind(SocketAddrV4::new(src_address, src_port))
             .expect("couldn't bind to address");
         let dst_addr = SocketAddrV4::new(dst_address, dst_port);
         OscSender { socket, dst_addr }
