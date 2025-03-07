@@ -26,6 +26,7 @@ cargo build --release
 -  `-a`, `--address <ADDRESS>` 送信先のIPアドレス (デフォルト: `127.0.0.1`)
 -  `-p`, `--port <PORT>`       送信先のポート (デフォルト: `9000`)
 -  `-v`, `--verbose`           詳細な出力
+-  `-d`, `--demo`              デモモード 時刻を10:08:42に固定
 -  `-h`, `--help`              ヘルプ
 -  `-V`, `--version`           バージョンの表示
 

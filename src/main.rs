@@ -16,7 +16,7 @@ struct Cli {
     #[arg(short, long)]
     verbose: bool,
     #[arg(short, long)]
-    display: bool,
+    demo: bool,
 }
 
 struct OscSender {
@@ -94,9 +94,9 @@ async fn main() {
     println!("Destination port: {}:{}", cli.address, cli.port);
 
     let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
-    match cli.display {
+    match cli.demo {
         true => {
-            set_display_mode(&sender).await;
+            set_demo_mode(&sender).await;
         }
         false => {
             trigger_at_second_change(&cli, &sender).await;
@@ -104,7 +104,7 @@ async fn main() {
     }
 }
 
-async fn set_display_mode(sender: &OscSender) {
+async fn set_demo_mode(sender: &OscSender) {
     let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
 
     println!("Display mode: fixed at {}", display_time);
