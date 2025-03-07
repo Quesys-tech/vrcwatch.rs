@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
-use chrono::{Local, Timelike};
+use chrono::{Local, TimeZone, Timelike};
 use clap::Parser;
 use rosc::{encoder, OscMessage, OscPacket, OscType};
 use tokio::time::{sleep, Duration};
@@ -9,12 +9,14 @@ use tokio::time::{sleep, Duration};
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(short, long, default_value = "127.0.0.1")]
+    #[arg(short, long, default_value = "127.0.0.1", help = "destination IP address")]
     address: Ipv4Addr,
-    #[arg(short, long, default_value = "9000")]
+    #[arg(short, long, default_value = "9000", help = "destination port")]
     port: u16,
-    #[arg(short, long)]
+    #[arg(short, long, help = "enable verbose mode")]
     verbose: bool,
+    #[arg(short, long, help = "demo mode, the watch shows 10:08:42")]
+    demo: bool,
 }
 
 struct OscSender {
@@ -92,5 +94,39 @@ async fn main() {
     println!("Destination port: {}:{}", cli.address, cli.port);
 
     let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
-    trigger_at_second_change(&cli, &sender).await;
+    match cli.demo {
+        true => {
+            set_demo_mode(&sender).await;
+        }
+        false => {
+            trigger_at_second_change(&cli, &sender).await;
+        }
+    }
+}
+
+async fn set_demo_mode(sender: &OscSender) {
+    let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
+
+    println!("Display mode: fixed at {}", display_time);
+
+    let second_fa = (display_time.second() as f64) / 60.0;
+    let minute_fa = (display_time.minute() as f64 + second_fa) / 60.0;
+    let hour_fa = (display_time.hour() as f64 + minute_fa) / 24.0;
+
+    let second_f_msg = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
+        args: vec![OscType::Float(second_fa as f32)],
+    });
+    let minute_f_msg = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
+        args: vec![OscType::Float(minute_fa as f32)],
+    });
+    let hour_f_msg = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/DateTimeHourFA".to_string(),
+        args: vec![OscType::Float(hour_fa as f32)],
+    });
+
+    sender.send(&second_f_msg).unwrap();
+    sender.send(&minute_f_msg).unwrap();
+    sender.send(&hour_f_msg).unwrap();
 }
