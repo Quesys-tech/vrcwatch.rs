@@ -10,7 +10,12 @@ use tokio::time::{sleep, Duration};
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(short, long, default_value = "127.0.0.1", help = "destination IP address")]
+    #[arg(
+        short,
+        long,
+        default_value = "127.0.0.1",
+        help = "destination IP address"
+    )]
     address: Ipv4Addr,
     #[arg(short, long, default_value = "9000", help = "destination port")]
     port: u16,
