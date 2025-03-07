@@ -71,7 +71,7 @@ async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
-async fn update_second_change(cli: &Cli, sender: &OscSender) {
+async fn update_second_change(cli: Cli, sender: OscSender) {
     loop {
         let now = Local::now();
         let sub_second = now.timestamp_subsec_nanos();
@@ -96,15 +96,15 @@ async fn main() {
     let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
     match cli.demo {
         true => {
-            set_demo_mode(&sender).await;
+            tokio::spawn(demo_mode(sender));
         }
         false => {
-            update_second_change(&cli, &sender).await;
+            tokio::spawn(update_second_change(cli, sender));
         }
     }
 }
 
-async fn set_demo_mode(sender: &OscSender) {
+async fn demo_mode(sender: OscSender) {
     let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
 
     println!("Display mode: fixed at {}", display_time);
