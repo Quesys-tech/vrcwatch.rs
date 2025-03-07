@@ -106,6 +106,7 @@ async fn main() {
     println!("Press Ctrl-C to exit");
     let mut sigint_handler = signal::windows::ctrl_c().unwrap();
     sigint_handler.recv().await;
+    println!("Exiting...");
 }
 
 async fn demo_mode(sender: OscSender) {
