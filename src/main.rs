@@ -42,7 +42,7 @@ impl OscSender {
     }
 }
 
-async fn tick_clock(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
+async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
 
     let second_fa = (now.second() as f64) / 60.0;
@@ -71,7 +71,7 @@ async fn tick_clock(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
-async fn trigger_at_second_change(cli: &Cli, sender: &OscSender) {
+async fn update_second_change(cli: &Cli, sender: &OscSender) {
     loop {
         let now = Local::now();
         let sub_second = now.timestamp_subsec_nanos();
@@ -80,7 +80,7 @@ async fn trigger_at_second_change(cli: &Cli, sender: &OscSender) {
             println!("Sleeping for {}ms", sleep_duration.as_millis());
         }
         sleep(sleep_duration).await;
-        tick_clock(&cli, &sender).await.unwrap();
+        tick_watch(&cli, &sender).await.unwrap();
     }
 }
 
@@ -99,7 +99,7 @@ async fn main() {
             set_demo_mode(&sender).await;
         }
         false => {
-            trigger_at_second_change(&cli, &sender).await;
+            update_second_change(&cli, &sender).await;
         }
     }
 }
