@@ -99,7 +99,7 @@ async fn main() {
     }
     println!("Destination port: {}:{}", cli.address, cli.port);
 
-    let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 34254, cli.address, cli.port);
+    let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
     match cli.demo {
         true => {
             tokio::spawn(demo_mode(sender));
