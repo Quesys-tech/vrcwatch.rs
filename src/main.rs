@@ -4,6 +4,7 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 use chrono::{Local, TimeZone, Timelike};
 use clap::Parser;
 use rosc::{encoder, OscMessage, OscPacket, OscType};
+use tokio::signal;
 use tokio::time::{sleep, Duration};
 
 #[derive(Parser)]
@@ -102,6 +103,9 @@ async fn main() {
             tokio::spawn(update_second_change(cli, sender));
         }
     }
+    println!("Press Ctrl-C to exit");
+    let mut sigint_handler = signal::windows::ctrl_c().unwrap();
+    sigint_handler.recv().await;
 }
 
 async fn demo_mode(sender: OscSender) {
