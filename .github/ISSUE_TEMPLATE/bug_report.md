@@ -27,5 +27,5 @@ If applicable, add screenshots to help explain your problem.
  - OS: [e.g. Windows 11]
  - Version [e.g. 0.1.0]
 
-**その他の文脈/Additional context**
+**補足/Additional context**
 Add any other context about the problem here.
