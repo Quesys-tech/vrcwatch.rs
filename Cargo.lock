@@ -432,9 +432,9 @@ dependencies = [
 
 [[package]]
 name = "rosc"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b1e54fcec3ed5c263ac31fb163c4dbc13d2721e3774deabe508511e28dd1f94"
+checksum = "84ab475bc75a4afd3f3664292686c2b316d95ecf7b916f61d97017b9c1ecc021"
 dependencies = [
  "byteorder",
  "nom",
@@ -560,9 +560,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.43.0"
+version = "1.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d61fa4ffa3de412bfea335c6ecff681de2b609ba3c77ef3e00e521813a9ed9e"
+checksum = "9975ea0f48b5aa3972bf2d888c238182458437cc2a19374b81b25cdf1023fb3a"
 dependencies = [
  "backtrace",
  "bytes",
@@ -601,7 +601,7 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "vrcwatch-rs"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "clap",
