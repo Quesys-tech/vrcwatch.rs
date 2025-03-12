@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
-use chrono::{Local, TimeZone, Timelike};
+use chrono::{DateTime, Local, TimeZone, Timelike};
 use clap::Parser;
 use rosc::{encoder, OscMessage, OscPacket, OscType};
 use tokio::signal;
@@ -48,33 +48,41 @@ impl OscSender {
     }
 }
 
-async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
-    let now = Local::now();
+async fn send_time(
+    sender: &OscSender,
+    time: &DateTime<Local>,
+    verbose: bool,
+) -> Result<(), Box<dyn Error>> {
+    let second_fraction = (time.second() as f64) / 60.0;
+    let minute_fraction = (time.minute() as f64 + second_fraction) / 60.0;
+    let hour_fraction = (time.hour() as f64 + minute_fraction) / 24.0;
 
-    let second_fa = (now.second() as f64) / 60.0;
-    let minute_fa = (now.minute() as f64 + second_fa) / 60.0;
-    let hour_fa = (now.hour() as f64 + minute_fa) / 24.0;
-
-    let second_f_msg = OscPacket::Message(OscMessage {
+    let second_animation = OscPacket::Message(OscMessage {
         addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
-        args: vec![OscType::Float(second_fa as f32)],
+        args: vec![OscType::Float(second_fraction as f32)],
     });
-    let minute_f_msg = OscPacket::Message(OscMessage {
+    let minute_animation = OscPacket::Message(OscMessage {
         addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
-        args: vec![OscType::Float(minute_fa as f32)],
+        args: vec![OscType::Float(minute_fraction as f32)],
     });
-    let hour_f_msg = OscPacket::Message(OscMessage {
+    let hour_animation = OscPacket::Message(OscMessage {
         addr: "/avatar/parameters/DateTimeHourFA".to_string(),
-        args: vec![OscType::Float(hour_fa as f32)],
+        args: vec![OscType::Float(hour_fraction as f32)],
     });
 
-    sender.send(&second_f_msg)?;
-    sender.send(&minute_f_msg)?;
-    sender.send(&hour_f_msg)?;
-    if cli.verbose {
-        println!("{}:{}:{}", now.hour(), now.minute(), now.second());
+    sender.send(&second_animation)?;
+    sender.send(&minute_animation)?;
+    sender.send(&hour_animation)?;
+
+    if verbose {
+        println!("{}:{}:{}", time.hour(), time.minute(), time.second());
     }
     Ok(())
+}
+
+async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
+    let now = Local::now();
+    send_time(sender, &now, cli.verbose).await
 }
 
 async fn update_second_change(cli: Cli, sender: OscSender) {
@@ -119,27 +127,8 @@ async fn demo_mode(sender: OscSender) {
 
     println!("Display mode: fixed at {}", display_time);
 
-    let second_fa = (display_time.second() as f64) / 60.0;
-    let minute_fa = (display_time.minute() as f64 + second_fa) / 60.0;
-    let hour_fa = (display_time.hour() as f64 + minute_fa) / 24.0;
-
-    let second_f_msg = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
-        args: vec![OscType::Float(second_fa as f32)],
-    });
-    let minute_f_msg = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
-        args: vec![OscType::Float(minute_fa as f32)],
-    });
-    let hour_f_msg = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeHourFA".to_string(),
-        args: vec![OscType::Float(hour_fa as f32)],
-    });
-
     loop {
-        sender.send(&second_f_msg).unwrap();
-        sender.send(&minute_f_msg).unwrap();
-        sender.send(&hour_f_msg).unwrap();
+        send_time(&sender, &display_time, true).await.unwrap();
         sleep(Duration::from_secs(1)).await;
     }
 }
