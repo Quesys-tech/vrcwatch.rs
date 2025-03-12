@@ -1,5 +1,7 @@
 # vrcwatch.rs
 
+https://github.com/user-attachments/assets/c0cac402-384e-4909-8281-88c25458c65c
+
 VRChat向けにOSCメッセージを送信する[vrcwatch](https://github.com/mezum/vrcwatch)のRust実装です。
 
 ⚠️ **このプロジェクトは現在、安定版ではありません。** ⚠️
