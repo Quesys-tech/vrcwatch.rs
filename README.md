@@ -1,5 +1,10 @@
 # vrcwatch.rs
 
+![GitHub Release](https://img.shields.io/github/v/release/Quesys-tech/vrcwatch.rs)[![Build and Unit Test](https://github.com/Quesys-tech/vrcwatch.rs/actions/workflows/build_test.yml/badge.svg)](https://github.com/Quesys-tech/vrcwatch.rs/actions/workflows/build_test.yml)
+
+
+https://github.com/user-attachments/assets/c0cac402-384e-4909-8281-88c25458c65c
+
 VRChat向けにOSCメッセージを送信する[vrcwatch](https://github.com/mezum/vrcwatch)のRust実装です。
 
 ⚠️ **このプロジェクトは現在、安定版ではありません。** ⚠️
@@ -12,16 +17,26 @@ VRChat向けにOSCメッセージを送信する[vrcwatch](https://github.com/me
 - OS: Windows 10/11
 - プロセッサ: x86-64
 
-## ビルド
+### 対応する時計
 
+**非公式な対応ですので、制作者の方への連絡はご遠慮ください。**
+- [【腕時計付き 28アバター対応】Airline Pilot Shirt&Jacket](https://maple-lifestyle.booth.pm/items/5079898)
+
+## インストール
+
+[最新版リリースのページ](https://github.com/Quesys-tech/vrcwatch.rs/releases/latest)から`vrcwatch-rs-x86_64-pc-windows-msvc.zip`をダウンロードして展開してください。
+
+自分でビルドしたい場合は以下のコマンドでビルドできます。
 ```bash
 git clone https://github.com/Quesys-tech/vrcwatch.rs.git
 cargo build --release
 ```
 
-## コマンドラインオプション
+## 使い方
 
-以下のコマンドラインオプションをサポートしています。基本的にデフォルトで動きます。
+VRChatに入るときに、展開した`vrcwatch-rs.exe`をダブルクリックしてください。
+
+また、コマンドラインから起動する場合は以下のコマンドラインオプションをサポートしています。
 
 -  `-a`, `--address <ADDRESS>` 送信先のIPアドレス (デフォルト: `127.0.0.1`)
 -  `-p`, `--port <PORT>`       送信先のポート (デフォルト: `9000`)
