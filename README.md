@@ -17,11 +17,16 @@ VRChat向けにOSCメッセージを送信する[vrcwatch](https://github.com/me
 - OS: Windows 10/11
 - プロセッサ: x86-64
 
+### 対応する時計
+
+**非公式な対応ですので、制作者の方への連絡はご遠慮ください。**
+- [【腕時計付き 28アバター対応】Airline Pilot Shirt&Jacket](https://maple-lifestyle.booth.pm/items/5079898)
+
 ## インストール
 
 [最新版リリースのページ](https://github.com/Quesys-tech/vrcwatch.rs/releases/latest)から`vrcwatch-rs-x86_64-pc-windows-msvc.zip`をダウンロードして展開してください。
 
-自分でビルドしたい場合は以下のコマンドでビルドできます
+自分でビルドしたい場合は以下のコマンドでビルドできます。
 ```bash
 git clone https://github.com/Quesys-tech/vrcwatch.rs.git
 cargo build --release
