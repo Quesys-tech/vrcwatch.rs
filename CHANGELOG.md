@@ -24,11 +24,13 @@ All notable changes to this project will be documented in this file.
 
 - Add demo movie on README
 - Add unofficial watch compatibility
+- *(changelog)* Update CHANGELOG.md
 
 ### ⚙️ Miscellaneous Tasks
 
 - Use Swatinem/rust-cache to cache dependencies
 - Generate changelog by git-cliff
+- Fix endless changelog update
 
 ## [0.1.1] - 2025-03-09
 
