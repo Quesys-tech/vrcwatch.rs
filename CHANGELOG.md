@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.0] - 2025-03-14
 
 ### 🚀 Features
 
@@ -10,15 +10,10 @@ All notable changes to this project will be documented in this file.
 
 ### 💼 Other
 
-- Update readme
 - *(deps)* Bump clap from 4.5.31 to 4.5.32
 - *(deps)* Bump tokio from 1.44.0 to 1.44.1
 - *(deps)* Bump rosc from 0.11.2 to 0.11.3
 - Add moon-phase
-
-### 🚜 Refactor
-
-- Simplify time sending logic
 
 ### 📚 Documentation
 
@@ -26,11 +21,16 @@ All notable changes to this project will be documented in this file.
 - Add unofficial watch compatibility
 - *(changelog)* Update CHANGELOG.md
 
+### 🚜 Refactor
+
+- Simplify time sending logic
+
 ### ⚙️ Miscellaneous Tasks
 
 - Use Swatinem/rust-cache to cache dependencies
 - Generate changelog by git-cliff
 - Fix endless changelog update
+- Fix git-cliff sorting order to ignore chore(changelog)
 
 ## [0.1.1] - 2025-03-09
 
@@ -68,7 +68,6 @@ All notable changes to this project will be documented in this file.
 - Sleep with async/await
 - Function `tick` to `tick_clock` for clarity
 - *(deps)* Bump rosc from 0.10.1 to 0.11.1
-- Display mode
 - Rename demo mode to clarify the meaning
 - Helps for options
 - Rename functions
