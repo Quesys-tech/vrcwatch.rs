@@ -1,8 +1,10 @@
 use std::error::Error;
 use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
+use std::time::SystemTime;
 
-use chrono::{DateTime, Local, TimeZone, Timelike};
+use chrono::{DateTime, Local, TimeZone, Timelike, Utc};
 use clap::Parser;
+use moon_phase::MoonPhase;
 use rosc::{encoder, OscMessage, OscPacket, OscType};
 use tokio::signal;
 use tokio::time::{sleep, Duration};
@@ -80,9 +82,56 @@ async fn send_time(
     Ok(())
 }
 
+/// Send moon phase to the watch (address: /avatar/parameters/MoonPhaseF, type: float)
+async fn send_moon_phase(sender: &OscSender, moon_phase: f32) -> Result<(), Box<dyn Error>> {
+    let moon_phase_animation = OscPacket::Message(OscMessage {
+        addr: "/avatar/parameters/MoonphaseF".to_string(),
+        args: vec![OscType::Float(moon_phase)],
+    });
+    sender.send(&moon_phase_animation)?;
+    Ok(())
+}
+
+/// Local time to moon phase (0.0: new moon, 0.5: full moon, 1.0: new moon)
+async fn calc_moon_phase<Tz: TimeZone>(local_time: &DateTime<Tz>) -> f32 {
+    let system_time: SystemTime = local_time.with_timezone(&Utc).into();
+    let moon_phase = MoonPhase::new(system_time);
+
+    moon_phase.phase as f32
+}
+#[tokio::test]
+async fn test_calc_moon_phase() {
+    let full_moon_list = [
+        (2025, 1, 13, 22, 27),
+        (2025, 2, 12, 13, 53),
+        (2025, 3, 14, 6, 55),
+        (2025, 4, 13, 0, 22),
+        (2025, 5, 12, 16, 56),
+        (2025, 6, 11, 07, 44),
+    ];
+
+    for (year, month, day, hour, min) in full_moon_list {
+        let local_time = Utc
+            .with_ymd_and_hms(year, month, day, hour, min, 0)
+            .unwrap();
+        let moon_phase = calc_moon_phase(&local_time).await;
+        let error = moon_phase - 0.5;
+        assert!(
+            error.abs() < 0.01 / 0.5, // 1% error
+            "full moon at {}: calc:{}",
+            local_time,
+            moon_phase
+        );
+    }
+}
+
 async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
-    send_time(sender, &now, cli.verbose).await
+    send_time(sender, &now, cli.verbose).await?;
+    let moon_phase = calc_moon_phase(&now).await;
+    send_moon_phase(sender, moon_phase).await?;
+
+    Ok(())
 }
 
 async fn update_second_change(cli: Cli, sender: OscSender) {

@@ -64,6 +64,7 @@ VRChatに入るときに、展開した`vrcwatch-rs.exe`をダブルクリック
 | `/avatar/parameters/DateTimeSecondFA` | float32  | 現在時刻の秒を60で割ったもの                                         |
 | `/avatar/parameters/DateTimeMinuteFA` | float32  | 現在時刻の分を60で割ったものに、`DateTimeSecondFA`の1/60を足したもの |
 | `/avatar/parameters/DateTimeHourFA`   | float32  | 現在時刻の時を24で割ったものに、`DateTimeMinuteFA`の1/24を足したもの |
+| `/avatar/parameters/MoonphaseF`       | float32  | 現在時刻の月相 (0:新月, 0.5:満月, 1:新月)|
 
 ### 使い方
 
