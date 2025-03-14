@@ -27,9 +27,9 @@ jobs:
         - uses: peter-evans/create-pull-request@v7
           with:
             token: ${{ secrets.GITHUB_TOKEN }}
-            title: "docs(changelog): Update CHANGELOG.md"
+            title: "chore(changelog): Update CHANGELOG.md"
             branch: "docs/changelog"
             add-paths: "CHANGELOG.md"
             body: "This PR was automatically created by the Generate Changelog action."
-            commit-message: "docs(changelog): Update CHANGELOG.md"
+            commit-message: "chore(changelog): Update CHANGELOG.md"
             labels: "documentation"
