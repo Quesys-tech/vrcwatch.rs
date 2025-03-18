@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 💼 Other
+
+- *(deps)* Bump orhun/git-cliff-action in /.github/workflows
+
 ## [0.2.0] - 2025-03-14
 
 ### 🚀 Features
