@@ -16,7 +16,7 @@ jobs:
           uses: actions/checkout@v4
           with:
             fetch-depth: 0
-        - uses: orhun/git-cliff-action@v3
+        - uses: orhun/git-cliff-action@v4
           id: git-cliff
           with:
             config: cliff.toml
