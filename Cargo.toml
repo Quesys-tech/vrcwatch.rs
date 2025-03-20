@@ -14,3 +14,4 @@ clap = { version = "4.5.34", features = ["derive"] }
 moon-phase = "0.1.0"
 rosc = "0.11.4"
 tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "0.26.2"
