@@ -1,13 +1,13 @@
 use std::error::Error;
-use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
+use std::net::Ipv4Addr;
 use std::time::SystemTime;
 
 use chrono::{DateTime, Local, TimeZone, Timelike, Utc};
 use clap::Parser;
 use moon_phase::MoonPhase;
-use rosc::{encoder, OscMessage, OscPacket, OscType};
 use tokio::signal;
 use tokio::time::{sleep, Duration};
+mod osc_sender;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -27,31 +27,8 @@ struct Cli {
     demo: bool,
 }
 
-struct OscSender {
-    socket: UdpSocket,
-    dst_addr: SocketAddrV4,
-}
-impl OscSender {
-    fn new(
-        src_address: Ipv4Addr,
-        src_port: u16,
-        dst_address: Ipv4Addr,
-        dst_port: u16,
-    ) -> OscSender {
-        let socket = UdpSocket::bind(SocketAddrV4::new(src_address, src_port))
-            .expect("couldn't bind to address");
-        let dst_addr = SocketAddrV4::new(dst_address, dst_port);
-        OscSender { socket, dst_addr }
-    }
-    fn send(&self, osc_packet: &OscPacket) -> Result<(), Box<dyn Error>> {
-        let buffer = encoder::encode(osc_packet)?;
-        self.socket.send_to(&buffer, self.dst_addr)?;
-        Ok(())
-    }
-}
-
 async fn send_time(
-    sender: &OscSender,
+    sender: &osc_sender::OscSender,
     time: &DateTime<Local>,
     verbose: bool,
 ) -> Result<(), Box<dyn Error>> {
@@ -59,22 +36,9 @@ async fn send_time(
     let minute_fraction = (time.minute() as f64 + second_fraction) / 60.0;
     let hour_fraction = (time.hour() as f64 + minute_fraction) / 24.0;
 
-    let second_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
-        args: vec![OscType::Float(second_fraction as f32)],
-    });
-    let minute_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
-        args: vec![OscType::Float(minute_fraction as f32)],
-    });
-    let hour_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeHourFA".to_string(),
-        args: vec![OscType::Float(hour_fraction as f32)],
-    });
-
-    sender.send(&second_animation)?;
-    sender.send(&minute_animation)?;
-    sender.send(&hour_animation)?;
+    sender.send( &(second_fraction as f32),"/avatar/parameters/DateTimeSecondFA")?;
+    sender.send( &(minute_fraction as f32),"/avatar/parameters/DateTimeMinuteFA")?;
+    sender.send( &(hour_fraction as f32),"/avatar/parameters/DateTimeHourFA")?;
 
     if verbose {
         println!("{}:{}:{}", time.hour(), time.minute(), time.second());
@@ -83,12 +47,11 @@ async fn send_time(
 }
 
 /// Send moon phase to the watch (address: /avatar/parameters/MoonPhaseF, type: float)
-async fn send_moon_phase(sender: &OscSender, moon_phase: f32) -> Result<(), Box<dyn Error>> {
-    let moon_phase_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/MoonphaseF".to_string(),
-        args: vec![OscType::Float(moon_phase)],
-    });
-    sender.send(&moon_phase_animation)?;
+async fn send_moon_phase(
+    sender: &osc_sender::OscSender,
+    moon_phase: f32,
+) -> Result<(), Box<dyn Error>> {
+    sender.send(&moon_phase, "/avatar/parameters/MoonPhaseF")?;
     Ok(())
 }
 
@@ -125,7 +88,7 @@ async fn test_calc_moon_phase() {
     }
 }
 
-async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>> {
+async fn tick_watch(cli: &Cli, sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
     send_time(sender, &now, cli.verbose).await?;
     let moon_phase = calc_moon_phase(&now).await;
@@ -134,7 +97,7 @@ async fn tick_watch(cli: &Cli, sender: &OscSender) -> Result<(), Box<dyn Error>>
     Ok(())
 }
 
-async fn update_second_change(cli: Cli, sender: OscSender) {
+async fn update_second_change(cli: Cli, sender: osc_sender::OscSender) {
     loop {
         let now = Local::now();
         let sub_second = now.timestamp_subsec_nanos();
@@ -156,7 +119,7 @@ async fn main() {
     }
     println!("Destination port: {}:{}", cli.address, cli.port);
 
-    let sender = OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
+    let sender = osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
     match cli.demo {
         true => {
             tokio::spawn(demo_mode(sender));
@@ -171,7 +134,7 @@ async fn main() {
     println!("Exiting...");
 }
 
-async fn demo_mode(sender: OscSender) {
+async fn demo_mode(sender: osc_sender::OscSender) {
     let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
 
     println!("Display mode: fixed at {}", display_time);
