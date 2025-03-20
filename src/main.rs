@@ -5,7 +5,6 @@ use std::time::SystemTime;
 use chrono::{DateTime, Local, TimeZone, Timelike, Utc};
 use clap::Parser;
 use moon_phase::MoonPhase;
-use rosc::{OscMessage, OscPacket, OscType};
 use tokio::signal;
 use tokio::time::{sleep, Duration};
 mod osc_sender;
@@ -37,22 +36,9 @@ async fn send_time(
     let minute_fraction = (time.minute() as f64 + second_fraction) / 60.0;
     let hour_fraction = (time.hour() as f64 + minute_fraction) / 24.0;
 
-    let second_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeSecondFA".to_string(),
-        args: vec![OscType::Float(second_fraction as f32)],
-    });
-    let minute_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeMinuteFA".to_string(),
-        args: vec![OscType::Float(minute_fraction as f32)],
-    });
-    let hour_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/DateTimeHourFA".to_string(),
-        args: vec![OscType::Float(hour_fraction as f32)],
-    });
-
-    sender.send(&second_animation)?;
-    sender.send(&minute_animation)?;
-    sender.send(&hour_animation)?;
+    sender.send( &(second_fraction as f32),"/avatar/parameters/DateTimeSecondFA")?;
+    sender.send( &(minute_fraction as f32),"/avatar/parameters/DateTimeMinuteFA")?;
+    sender.send( &(hour_fraction as f32),"/avatar/parameters/DateTimeHourFA")?;
 
     if verbose {
         println!("{}:{}:{}", time.hour(), time.minute(), time.second());
@@ -65,11 +51,7 @@ async fn send_moon_phase(
     sender: &osc_sender::OscSender,
     moon_phase: f32,
 ) -> Result<(), Box<dyn Error>> {
-    let moon_phase_animation = OscPacket::Message(OscMessage {
-        addr: "/avatar/parameters/MoonphaseF".to_string(),
-        args: vec![OscType::Float(moon_phase)],
-    });
-    sender.send(&moon_phase_animation)?;
+    sender.send(&moon_phase, "/avatar/parameters/MoonPhaseF")?;
     Ok(())
 }
 

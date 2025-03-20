@@ -3,6 +3,30 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 
 use rosc::{OscMessage, OscPacket, OscType, encoder};
 
+pub trait Sendable {
+    fn send(
+        &self,
+        socket: &UdpSocket,
+        osc_addr: &str,
+        dst_addr: &SocketAddrV4,
+    ) -> Result<(), Box<dyn Error>>;
+}
+impl Sendable for f32 {
+    fn send(
+        &self,
+        socket: &UdpSocket,
+        osc_addr: &str,
+        dst_addr: &SocketAddrV4,
+    ) -> Result<(), Box<dyn Error>> {
+        let message = OscPacket::Message(OscMessage {
+            addr: osc_addr.to_string(),
+            args: vec![OscType::Float(*self)],
+        });
+        let buffer = encoder::encode(&message)?;
+        socket.send_to(&buffer, dst_addr)?;
+        Ok(())
+    }
+}
 
 pub struct OscSender {
     socket: UdpSocket,
@@ -20,9 +44,7 @@ impl OscSender {
         let dst_addr = SocketAddrV4::new(dst_address, dst_port);
         OscSender { socket, dst_addr }
     }
-    pub fn send(&self, osc_packet: &OscPacket) -> Result<(), Box<dyn Error>> {
-        let buffer = encoder::encode(osc_packet)?;
-        self.socket.send_to(&buffer, self.dst_addr)?;
-        Ok(())
+    pub fn send<T: Sendable>(&self, data: &T, osc_addr: &str) -> Result<(), Box<dyn Error>> {
+        data.send(&self.socket, osc_addr, &self.dst_addr)
     }
 }
