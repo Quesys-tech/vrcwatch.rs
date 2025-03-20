@@ -4,9 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🚀 Features
+
+- Add OSC address validation with tests
+
 ### 💼 Other
 
 - *(deps)* Bump orhun/git-cliff-action in /.github/workflows
+
+### 🚜 Refactor
+
+- Move OscSender implementation to a separate module
+- Abstraction of OSC message sending
+
+### ⚙️ Miscellaneous Tasks
+
+- Update changelog workflow to trigger on release
 
 ## [0.2.0] - 2025-03-14
 
