@@ -27,8 +27,8 @@ jobs:
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "chore(release): prepare for v${{ steps.git-cliff.outputs.version }}"
-          branch: "chore/release-v${{ steps.git-cliff.outputs.version }}"
+          title: "chore(release): prepare for ${{ steps.git-cliff.outputs.version }}"
+          branch: "chore/release-${{ steps.git-cliff.outputs.version }}"
           add-paths: "CHANGELOG.md, Cargo.toml"
           body: "This PR was automatically created by the Release Preparation action."
-          commit-message: "chore(release): prepare for v${{ steps.git-cliff.outputs.version }}"
+          commit-message: "chore(release): prepare for ${{ steps.git-cliff.outputs.version }}"
