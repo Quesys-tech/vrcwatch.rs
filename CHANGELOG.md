@@ -2,11 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.3.0] - 2025-03-21
 
 ### 🚀 Features
 
 - Add OSC address validation with tests
+
+### 🐛 Bug Fixes
+
+- Bump version in cargo.toml
 
 ### 💼 Other
 
@@ -20,6 +24,9 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Update changelog workflow to trigger on release
+- Add release preparation action to release automatically
+- Git-cliff-action puts new changelog
+- Fix release preparation branch
 
 ## [0.2.0] - 2025-03-14
 
