@@ -16,28 +16,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install Rust
-        run: rustup toolchain install stable --profile minimal --no-self-update
-      - name: Install git-cliff
-        run: cargo install git-cliff
-      - name: get next version
-        id: get_version
-        run: echo "next=$(git cliff --bumped-version | awk '{print substr($0, 2)}' )" >> "$GITHUB_OUTPUT"
-      - name: set next version in cargo.toml
-        run: sed -i "s/^version = .*/version = \"${{ steps.get_version.outputs.next }}\"/" Cargo.toml
       - uses: orhun/git-cliff-action@v4
         id: git-cliff
         with:
           config: cliff.toml
-          args: --verbose
+          args: --verbose --bump
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "chore(release): prepare for v${{ steps.get_version.outputs.next }}"
-          branch: "docs/changelog"
+          title: "chore(release): prepare for v${{ steps.git-cliff.outputs.version }}"
+          branch: "chore/release-v${{ steps.git-cliff.outputs.version }}"
           add-paths: "CHANGELOG.md, Cargo.toml"
           body: "This PR was automatically created by the Release Preparation action."
-          commit-message: "chore(release): prepare for v${{ steps.get_version.outputs.next }}"
+          commit-message: "chore(release): prepare for v${{ steps.git-cliff.outputs.version }}"
