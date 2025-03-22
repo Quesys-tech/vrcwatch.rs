@@ -8,6 +8,7 @@ use moon_phase::MoonPhase;
 use tokio::signal;
 use tokio::time::{sleep, Duration};
 mod osc_sender;
+mod battery;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -126,6 +127,7 @@ async fn main() {
         }
         false => {
             tokio::spawn(update_second_change(cli, sender));
+            tokio::spawn(battery::battery_check());
         }
     }
     println!("Press Ctrl-C to exit");
