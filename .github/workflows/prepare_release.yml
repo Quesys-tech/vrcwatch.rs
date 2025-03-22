@@ -26,6 +26,7 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
       - uses: peter-evans/create-pull-request@v7
         with:
+          base: master
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "chore(release): prepare for ${{ steps.git-cliff.outputs.version }}"
           branch: "chore/release-${{ steps.git-cliff.outputs.version }}"
