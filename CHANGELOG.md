@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-03-24
+
+### 💼 Other
+
+- *(deps)* Bump rosc from 0.11.3 to 0.11.4
+
 ## [0.3.0] - 2025-03-21
 
 ### 🚀 Features
