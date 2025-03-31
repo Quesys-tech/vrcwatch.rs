@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.1] - 2025-03-24
+## [unreleased]
+
+### 💼 Other
+
+- *(deps)* Bump clap from 4.5.32 to 4.5.34
+
+## [0.3.1] - 2025-03-25
 
 ### 💼 Other
 
