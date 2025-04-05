@@ -24,6 +24,9 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
+      - uses: astral-sh/setup-uv@v5
+      - run: uv run ci/bumber.py ${{ steps.git-cliff.outputs.version }}
+      - run: cargo update
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
