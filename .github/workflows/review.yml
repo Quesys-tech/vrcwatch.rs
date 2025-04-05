@@ -10,5 +10,5 @@ jobs:
       - run: rustup toolchain install stable --profile minimal --no-self-update
       - uses: taiki-e/install-action@v2
         with:
-          tool: clippy-sarif
+          tool: clippy-sarif, sarif-fmt
       - run: cargo clippy --message-format=json | clippy-sarif | sarif-fmt
