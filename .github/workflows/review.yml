@@ -1,0 +1,14 @@
+name: Review on Pull Request
+on:
+  pull_request:
+
+jobs:
+  rust:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal --no-self-update
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: clippy-sarif
+      - run: cargo clippy --message-format=json | clippy-sarif | sarif-fmt
