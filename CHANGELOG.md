@@ -2,28 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.3.2] - 2025-04-05
 
 ### 🐛 Bug Fixes
 
 - *(release)* Update binary name to include branch name
-
-### 💼 Other
-
-- *(deps)* Bump clap from 4.5.32 to 4.5.34
-- *(deps)* Bump clap from 4.5.34 to 4.5.35
+- Moon phase is not working
 
 ### ⚙️ Miscellaneous Tasks
 
 - *(release)* Simplify branch in release candidate
 - Add clippy check
 - Install sarif-fmt
-
-## [0.3.1] - 2025-03-25
-
-### 💼 Other
-
-- *(deps)* Bump rosc from 0.11.3 to 0.11.4
 
 ## [0.3.0] - 2025-03-21
 
@@ -34,10 +24,6 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - Bump version in cargo.toml
-
-### 💼 Other
-
-- *(deps)* Bump orhun/git-cliff-action in /.github/workflows
 
 ### 🚜 Refactor
 
@@ -60,9 +46,6 @@ All notable changes to this project will be documented in this file.
 
 ### 💼 Other
 
-- *(deps)* Bump clap from 4.5.31 to 4.5.32
-- *(deps)* Bump tokio from 1.44.0 to 1.44.1
-- *(deps)* Bump rosc from 0.11.2 to 0.11.3
 - Add moon-phase
 
 ### 📚 Documentation
@@ -117,7 +100,6 @@ All notable changes to this project will be documented in this file.
 - Tokio for async
 - Sleep with async/await
 - Function `tick` to `tick_clock` for clarity
-- *(deps)* Bump rosc from 0.10.1 to 0.11.1
 - Rename demo mode to clarify the meaning
 - Helps for options
 - Rename functions
