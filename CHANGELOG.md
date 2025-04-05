@@ -4,9 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🐛 Bug Fixes
+
+- *(release)* Update binary name to include branch name
+
 ### 💼 Other
 
 - *(deps)* Bump clap from 4.5.32 to 4.5.34
+- *(deps)* Bump clap from 4.5.34 to 4.5.35
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Simplify branch in release candidate
+- Add clippy check
+- Install sarif-fmt
 
 ## [0.3.1] - 2025-03-25
 
