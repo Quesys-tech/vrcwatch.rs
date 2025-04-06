@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3] - 2025-04-06
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump cargo.toml automatically
+- Remove tag trigger from changelog generation
+- Fix uploading rust binary workflow
+- Update version in Cargo.lock alongside Cargo.toml
+- Fix typo in script path for release preparation
+
 ## [0.3.2] - 2025-04-05
 
 ### 🐛 Bug Fixes
