@@ -24,12 +24,15 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
+      - uses: astral-sh/setup-uv@v5
+      - run: uv run ci/bumper.py ${{ steps.git-cliff.outputs.version }}
+      - run: cargo update
       - uses: peter-evans/create-pull-request@v7
         with:
           base: master
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "chore(release): prepare for ${{ steps.git-cliff.outputs.version }}"
-          branch: "chore/release-${{ steps.git-cliff.outputs.version }}"
+          branch: "chore/release"
           add-paths: "CHANGELOG.md, Cargo.toml"
           body: "This PR was automatically created by the Release Preparation action."
           commit-message: "chore(release): prepare for ${{ steps.git-cliff.outputs.version }}"

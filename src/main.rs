@@ -52,7 +52,7 @@ async fn send_moon_phase(
     sender: &osc_sender::OscSender,
     moon_phase: f32,
 ) -> Result<(), Box<dyn Error>> {
-    sender.send(&moon_phase, "/avatar/parameters/MoonPhaseF")?;
+    sender.send(&moon_phase, "/avatar/parameters/MoonphaseF")?;
     Ok(())
 }
 

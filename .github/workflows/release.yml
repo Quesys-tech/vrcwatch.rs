@@ -26,4 +26,5 @@ jobs:
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: vrcwatch-rs
+          archive: vrcwatch-rs-${{github.ref_name}}
           token: ${{ secrets.GITHUB_TOKEN }}
