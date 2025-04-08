@@ -1,6 +1,6 @@
 name: Generate Changelog
 on:
-  push:
+  pull_request:
     branches:
       - master
 
@@ -15,6 +15,7 @@ jobs:
         - name: Check out repository
           uses: actions/checkout@v4
           with:
+            ref: ${{ github.head_ref }}
             fetch-depth: 0
         - uses: orhun/git-cliff-action@v4
           id: git-cliff
@@ -24,12 +25,10 @@ jobs:
           env:
             OUTPUT: CHANGELOG.md
             GITHUB_REPO: ${{ github.repository }}
-        - uses: peter-evans/create-pull-request@v7
+        - uses: stefanzweifel/git-auto-commit-action@v5
           with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            title: "chore(changelog): Update CHANGELOG.md"
-            branch: "docs/changelog"
-            add-paths: "CHANGELOG.md"
-            body: "This PR was automatically created by the Generate Changelog action."
-            commit-message: "chore(changelog): Update CHANGELOG.md"
-            labels: "documentation"
+            commit_message: 'chore(changelog): update CHANGELOG.md'
+            branch: ${{ github.head_ref }}
+            file_pattern: CHANGELOG.md
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
