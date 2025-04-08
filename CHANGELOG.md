@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- *(changelog)* Update on pull requests
+
 ## [0.3.3] - 2025-04-06
 
 ### ⚙️ Miscellaneous Tasks
