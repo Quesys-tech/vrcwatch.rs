@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🐛 Bug Fixes
+
+- *(ci)* Avoid overwriting the changelog on release PRs
+
 ### ⚙️ Miscellaneous Tasks
 
 - *(changelog)* Update on pull requests
