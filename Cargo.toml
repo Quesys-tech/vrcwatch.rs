@@ -1,6 +1,6 @@
 [package]
 name = "vrcwatch-rs"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 publish = false
 license = "MIT"
@@ -10,8 +10,8 @@ description = "A VRChat watch driver via OSC"
 
 [dependencies]
 chrono = "0.4.40"
-clap = { version = "4.5.35", features = ["derive"] }
 futures-util = "0.3.31"
+clap = { version = "4.5.36", features = ["derive"] }
 moon-phase = "0.1.0"
 rosc = "0.11.4"
 serde = { version = "1.0.219", features = ["derive"] }

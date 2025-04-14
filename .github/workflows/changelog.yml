@@ -1,6 +1,7 @@
 name: Generate Changelog
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
 
@@ -10,6 +11,9 @@ permissions:
 
 jobs:
   changelog:
+    # Avoid overwriting the changelog on release PRs
+    if: github.head_ref != 'chore/release' && github.event.pull_request.draft == false
+    # Only run if the PR is not a draft and is targeting the master branch
     runs-on: ubuntu-latest
     steps:
         - name: Check out repository
