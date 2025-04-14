@@ -29,8 +29,15 @@ All notable changes to this project will be documented in this file.
 - *(release)* Update binary name to include branch name
 - Moon phase is not working
 
+### 💼 Other
+
+- Add serde_json
+- Websocket connection test
+- Battery_check to communicate with xsoverlay
+
 ### ⚙️ Miscellaneous Tasks
 
+- Fix failure of create-pull-request on tag push
 - *(release)* Simplify branch in release candidate
 - Add clippy check
 - Install sarif-fmt
