@@ -107,6 +107,10 @@ async fn update_second_change(cli: Cli, sender: osc_sender::OscSender) {
         }
         sleep(sleep_duration).await;
         tick_watch(&cli, &sender).await.unwrap();
+        if cli.verbose {
+            let watch_moved = Local::now();
+            println!("Tick at {}:{}:{}.{}", watch_moved.hour(), watch_moved.minute(), watch_moved.second(), watch_moved.timestamp_subsec_millis());
+        }
     }
 }
 
