@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### 🚜 Refactor
 
 - Remove verbose mode and integrate tracing for logging
+- Enhance error handling and logging in time update functions
 
 ## [0.3.4] - 2025-04-14
 
