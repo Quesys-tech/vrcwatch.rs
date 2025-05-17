@@ -132,7 +132,7 @@ async fn main() {
         })
         .init();
 
-    debug!("Verbose mode enabled");
+    debug!("Debug mode enabled");
     info!("Destination port: {}:{}", cli.address, cli.port);
 
     let sender = osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
