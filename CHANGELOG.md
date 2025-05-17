@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🚀 Features
+
+- [**breaking**] Debug mode replaced verbose mode
+- Add debug logging for before and after tick via osc
+
+### 🚜 Refactor
+
+- Remove verbose mode and integrate tracing for logging
+
 ## [0.3.4] - 2025-04-14
 
 ### 🐛 Bug Fixes
