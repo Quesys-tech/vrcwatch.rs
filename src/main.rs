@@ -7,7 +7,7 @@ use clap::Parser;
 use moon_phase::MoonPhase;
 use tokio::signal;
 use tokio::time::{sleep, Duration};
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 use tracing_subscriber;
 mod osc_sender;
 
@@ -109,8 +109,14 @@ async fn update_second_change(sender: osc_sender::OscSender) {
         debug!("Sleeping for {}ms", sleep_duration.as_millis());
         sleep(sleep_duration).await;
         debug!("Awake");
-        tick_watch(&sender).await.unwrap();
-        debug!("Tick watch");
+        match tick_watch(&sender).await {
+            Ok(_) => {
+                debug!("Tick watch");
+            }
+            Err(e) => {
+                error!("Error: {}", e);
+            }
+        }
     }
 }
 
@@ -150,7 +156,14 @@ async fn demo_mode(sender: osc_sender::OscSender) {
     info!("Display mode: fixed at {}", display_time);
 
     loop {
-        send_time(&sender, &display_time).await.unwrap();
+        match send_time(&sender, &display_time).await {
+            Ok(_) => {
+                debug!("Tick watch");
+            }
+            Err(e) => {
+                error!("Error: {}", e);
+            }
+        };
         sleep(Duration::from_secs(1)).await;
     }
 }
