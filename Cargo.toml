@@ -14,3 +14,5 @@ clap = { version = "4.5.38", features = ["derive"] }
 moon-phase = "0.1.0"
 rosc = "0.11.4"
 tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
