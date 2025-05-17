@@ -9,6 +9,10 @@ All notable changes to this project will be documented in this file.
 - [**breaking**] Debug mode replaced verbose mode
 - Add debug logging for before and after tick via osc
 
+### 🐛 Bug Fixes
+
+- Update debug logging message to reflect mode change
+
 ### 🚜 Refactor
 
 - Remove verbose mode and integrate tracing for logging
