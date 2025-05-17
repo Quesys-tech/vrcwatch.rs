@@ -108,7 +108,9 @@ async fn update_second_change(sender: osc_sender::OscSender) {
         let sleep_duration = Duration::from_nanos(1_000_000_000 - sub_second as u64);
         debug!("Sleeping for {}ms", sleep_duration.as_millis());
         sleep(sleep_duration).await;
+        debug!("Awake");
         tick_watch(&sender).await.unwrap();
+        debug!("Tick watch");
     }
 }
 
