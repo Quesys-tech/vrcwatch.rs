@@ -21,9 +21,9 @@ struct Cli {
     address: Ipv4Addr,
     #[arg(short, long, default_value = "9000", help = "destination port")]
     port: u16,
-    #[arg(short, long, help = "enable verbose mode")]
-    verbose: bool,
-    #[arg(short, long, help = "demo mode, the watch shows 10:08:42")]
+    #[arg(long, help = "enable debug mode")]
+    debug: bool,
+    #[arg(long, help = "demo mode, the watch shows 10:08:42")]
     demo: bool,
 }
 
