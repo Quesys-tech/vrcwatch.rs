@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 
 - Update debug logging message to reflect mode change
 
+### 📚 Documentation
+
+- Cli options updated with debug mode and demo mode
+
 ### 🚜 Refactor
 
 - Remove verbose mode and integrate tracing for logging
