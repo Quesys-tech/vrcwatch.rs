@@ -105,7 +105,7 @@ async fn update_second_change(sender: osc_sender::OscSender) {
         let now = Local::now();
         let sub_second = now.timestamp_subsec_nanos();
         let sleep_duration = Duration::from_nanos(1_000_000_000 - sub_second as u64);
-        debug!("Sleeping for {}ms", sleep_duration.as_millis());
+        // debug!("Sleeping for {}ms", sleep_duration.as_millis());
         sleep(sleep_duration).await;
         debug!("Awake");
         match tick_watch(&sender).await {
@@ -123,7 +123,7 @@ async fn update_second_change(sender: osc_sender::OscSender) {
 async fn main() {
     let cli = Cli::parse();
 
-    tracing_subscriber::fmt()
+    tracing_subscriber::fmt().pretty().json()
         .with_max_level(if cli.debug {
             tracing::Level::DEBUG
         } else {
