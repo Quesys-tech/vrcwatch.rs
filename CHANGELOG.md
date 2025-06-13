@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - *(ci)* Potential fix for code scanning alert no. 1: Workflow does not contain permissions
+- *(ci)* Potential fix for code scanning alert no. 2: Workflow does not contain permissions
+- Clippy::single_component_path_imports
 
 ## [0.4.0] - 2025-06-13
 

@@ -8,7 +8,6 @@ use moon_phase::MoonPhase;
 use tokio::signal;
 use tokio::time::{sleep, Duration};
 use tracing::{debug, error, info};
-use tracing_subscriber;
 mod osc_sender;
 
 #[derive(Parser)]

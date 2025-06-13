@@ -1,4 +1,6 @@
 name: Review on Pull Request
+permissions:
+  contents: read
 on:
   pull_request:
 
