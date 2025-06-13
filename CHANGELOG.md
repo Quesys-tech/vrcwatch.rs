@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🐛 Bug Fixes
+
+- *(ci)* Potential fix for code scanning alert no. 1: Workflow does not contain permissions
+
 ## [0.4.0] - 2025-06-13
 
 ### 🚀 Features
