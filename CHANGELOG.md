@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - Update debug logging message to reflect mode change
+- *(ci)* Fix git-cliff config
 
 ### 📚 Documentation
 
