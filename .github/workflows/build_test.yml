@@ -4,7 +4,10 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-  
+
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -19,4 +22,3 @@ jobs:
         run: cargo build --verbose
       - name: Run tests
         run: cargo test --verbose
-  
