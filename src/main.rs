@@ -6,7 +6,7 @@ use chrono::{DateTime, Local, TimeZone, Timelike, Utc};
 use clap::Parser;
 use moon_phase::MoonPhase;
 use tokio::signal;
-use tokio::time::{sleep, Duration};
+use tokio::time::{sleep, Duration, Instant};
 use tracing::{debug, error, info};
 mod osc_sender;
 
@@ -101,12 +101,22 @@ async fn tick_watch(sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>
 }
 
 async fn update_second_change(sender: osc_sender::OscSender) {
+    // 1. 次の秒の開始時刻を計算
+    let now_instant = Instant::now();
+    let now_chrono = Local::now();
+    let sub_second_nanos = now_chrono.timestamp_subsec_nanos();
+    let duration_to_next_second = Duration::from_nanos(1_000_000_000 - sub_second_nanos as u64);
+
+    // 2. 最初のティックの発生時刻を決定
+    let start_time = now_instant + duration_to_next_second;
+    debug!(
+        "now: {} ({:?}) start_time: {:?}",
+        now_chrono, now_instant, start_time
+    );
+    // 3. 決定した開始時刻と1秒間隔で`interval`を作成
+    let mut interval = tokio::time::interval_at(start_time, Duration::from_secs(1));
     loop {
-        let now = Local::now();
-        let sub_second = now.timestamp_subsec_nanos();
-        let sleep_duration = Duration::from_nanos(1_000_000_000 - sub_second as u64);
-        // debug!("Sleeping for {}ms", sleep_duration.as_millis());
-        sleep(sleep_duration).await;
+        interval.tick().await;
         debug!("Awake");
         match tick_watch(&sender).await {
             Ok(_) => {
@@ -123,7 +133,9 @@ async fn update_second_change(sender: osc_sender::OscSender) {
 async fn main() {
     let cli = Cli::parse();
 
-    tracing_subscriber::fmt().pretty().json()
+    tracing_subscriber::fmt()
+        .pretty()
+        .json()
         .with_max_level(if cli.debug {
             tracing::Level::DEBUG
         } else {
