@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.4.2] - 2025-07-14
+## [unreleased]
+
+### 💼 Other
+
+- *(deps)* Bump tokio from 1.46.1 to 1.47.0
+
+## [0.4.2] - 2025-07-15
 
 ### 💼 Other
 
