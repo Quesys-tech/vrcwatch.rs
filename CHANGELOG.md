@@ -2,11 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Bump slab from 0.4.10 to 0.4.11 in the cargo group
+- *(deps)* Bump clap from 4.5.44 to 4.5.45
+- *(deps)* Bump tracing-subscriber in the cargo group
+- *(deps)* Bump clap from 4.5.45 to 4.5.47
+- *(deps)* Bump chrono from 0.4.41 to 0.4.42
+
+### ⚙️ Miscellaneous Tasks
+
+- Change release commit parser
+
 ## [0.4.3] - 2025-08-12
 
 ### 💼 Other
 
 - *(deps)* Bump tokio from 1.46.1 to 1.47.0
+
+### 🔧 Dependencies
+
+- *(deps)* Bump tokio from 1.47.0 to 1.47.1
+- *(deps)* Bump clap from 4.5.41 to 4.5.42
+- *(deps)* Bump actions/checkout from 4 to 5 in /.github/workflows
+- *(deps)* Bump clap from 4.5.42 to 4.5.43
 
 ## [0.4.2] - 2025-07-15
 
@@ -133,6 +154,10 @@ All notable changes to this project will be documented in this file.
 
 - Move OscSender implementation to a separate module
 - Abstraction of OSC message sending
+
+### 🔧 Dependencies
+
+- *(deps)* Cargo update
 
 ### ⚙️ Miscellaneous Tasks
 
