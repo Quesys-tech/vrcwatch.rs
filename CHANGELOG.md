@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.4.4] - 2025-09-13
 
 ### 🔧 Dependencies
 
