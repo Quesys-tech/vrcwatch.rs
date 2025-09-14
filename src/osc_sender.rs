@@ -1,5 +1,6 @@
 use std::error::Error;
-use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
+use std::net::{Ipv4Addr, SocketAddrV4};
+use tokio::net::UdpSocket;
 
 use rosc::{encoder, OscMessage, OscPacket, OscType};
 
@@ -23,7 +24,7 @@ fn verify_osc_addr(addr: &str) -> Result<(), Box<dyn Error>> {
 }
 
 pub trait Sendable {
-    fn send(
+    async fn send(
         &self,
         socket: &UdpSocket,
         osc_addr: &str,
@@ -31,7 +32,7 @@ pub trait Sendable {
     ) -> Result<(), Box<dyn Error>>;
 }
 impl Sendable for f32 {
-    fn send(
+    async fn send(
         &self,
         socket: &UdpSocket,
         osc_addr: &str,
@@ -43,7 +44,7 @@ impl Sendable for f32 {
         });
         verify_osc_addr(osc_addr)?;
         let buffer = encoder::encode(&message)?;
-        socket.send_to(&buffer, dst_addr)?;
+        socket.send_to(&buffer, dst_addr).await?;
         Ok(())
     }
 }
@@ -53,19 +54,18 @@ pub struct OscSender {
     dst_addr: SocketAddrV4,
 }
 impl OscSender {
-    pub fn new(
+    pub async fn new(
         src_address: Ipv4Addr,
         src_port: u16,
         dst_address: Ipv4Addr,
         dst_port: u16,
     ) -> OscSender {
-        let socket = UdpSocket::bind(SocketAddrV4::new(src_address, src_port))
-            .expect("couldn't bind to address");
+        let socket = UdpSocket::bind(SocketAddrV4::new(src_address, src_port)).await.expect("couldn't bind to address");
         let dst_addr = SocketAddrV4::new(dst_address, dst_port);
         OscSender { socket, dst_addr }
     }
-    pub fn send<T: Sendable>(&self, data: &T, osc_addr: &str) -> Result<(), Box<dyn Error>> {
-        data.send(&self.socket, osc_addr, &self.dst_addr)
+    pub async fn send<T: Sendable>(&self, data: &T, osc_addr: &str) -> Result<(), Box<dyn Error>> {
+        data.send(&self.socket, osc_addr, &self.dst_addr).await
     }
 }
 
