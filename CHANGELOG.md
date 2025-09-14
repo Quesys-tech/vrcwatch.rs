@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🔧 Dependencies
+
+- *(deps)* Bump tomlkit from 0.13.2 to 0.13.3
+
 ### ⚙️ Miscellaneous Tasks
 
 - Manage python dependency by uv
