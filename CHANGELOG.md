@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- Manage python dependency by uv
+
 ## [0.4.4] - 2025-09-13
 
 ### 🔧 Dependencies
