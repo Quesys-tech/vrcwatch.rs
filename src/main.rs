@@ -60,7 +60,9 @@ async fn send_moon_phase(
     sender: &osc_sender::OscSender,
     moon_phase: f32,
 ) -> Result<(), Box<dyn Error>> {
-    sender.send(&moon_phase, "/avatar/parameters/MoonphaseF").await?;
+    sender
+        .send(&moon_phase, "/avatar/parameters/MoonphaseF")
+        .await?;
     Ok(())
 }
 
@@ -107,22 +109,7 @@ async fn tick_watch(sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>
 }
 
 async fn update_second_change(sender: osc_sender::OscSender) {
-    // 1. 次の秒の開始時刻を計算
-    let now_instant = Instant::now();
-    let now_chrono = Local::now();
-    let sub_second_nanos = now_chrono.timestamp_subsec_nanos();
-    let duration_to_next_second = Duration::from_nanos(1_000_000_000 - sub_second_nanos as u64);
-
-    // 2. 最初のティックの発生時刻を決定
-    let start_time = now_instant + duration_to_next_second;
-    debug!(
-        "now: {} ({:?}) start_time: {:?}",
-        now_chrono, now_instant, start_time
-    );
-    // 3. 決定した開始時刻と1秒間隔で`interval`を作成
-    let mut interval = tokio::time::interval_at(start_time, Duration::from_secs(1));
     loop {
-        interval.tick().await;
         debug!("Awake");
         match tick_watch(&sender).await {
             Ok(_) => {
@@ -132,6 +119,10 @@ async fn update_second_change(sender: osc_sender::OscSender) {
                 error!("Error: {}", e);
             }
         }
+        let now_instant = Instant::now();
+        let sub_second_ns = Local::now().timestamp_subsec_nanos() as u64;
+        let duration_deadline = Duration::from_nanos(1_000_000_000 - sub_second_ns);
+        tokio::time::sleep_until(now_instant + duration_deadline).await;
     }
 }
 
@@ -152,7 +143,8 @@ async fn main() {
     debug!("Debug mode enabled");
     info!("Destination port: {}:{}", cli.address, cli.port);
 
-    let sender = osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port).await;
+    let sender =
+        osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port).await;
     match cli.demo {
         true => {
             tokio::spawn(demo_mode(sender));
