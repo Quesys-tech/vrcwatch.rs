@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - *(deps)* Bump tomlkit from 0.13.2 to 0.13.3
 - *(deps)* Bump clap from 4.5.47 to 4.5.48
+- *(deps)* Bump stefanzweifel/git-auto-commit-action
 
 ### ⚙️ Miscellaneous Tasks
 
