@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump clap from 4.5.47 to 4.5.48
 - *(deps)* Bump stefanzweifel/git-auto-commit-action
 - *(deps)* Bump astral-sh/setup-uv from 6 to 7 in /.github/workflows
+- *(deps)* Bump tokio from 1.47.1 to 1.48.0
 
 ### ⚙️ Miscellaneous Tasks
 
