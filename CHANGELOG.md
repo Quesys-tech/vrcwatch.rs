@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Bump tomlkit from 0.13.2 to 0.13.3
+- *(deps)* Bump clap from 4.5.47 to 4.5.48
+- *(deps)* Bump stefanzweifel/git-auto-commit-action
+- *(deps)* Bump astral-sh/setup-uv from 6 to 7 in /.github/workflows
+- *(deps)* Bump tokio from 1.47.1 to 1.48.0
+- *(deps)* Bump clap from 4.5.48 to 4.5.49
+
+### ⚙️ Miscellaneous Tasks
+
+- Manage python dependency by uv
+
 ## [0.4.4] - 2025-09-13
 
 ### 🔧 Dependencies
