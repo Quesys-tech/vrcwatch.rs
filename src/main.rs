@@ -102,9 +102,6 @@ async fn test_calc_moon_phase() {
 async fn tick_watch(sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
     send_time(sender, &now).await?;
-    let moon_phase = calc_moon_phase(&now).await;
-    send_moon_phase(sender, moon_phase).await?;
-
     Ok(())
 }
 
@@ -123,6 +120,24 @@ async fn update_second_change(sender: osc_sender::OscSender) {
         let sub_second_ns = Local::now().timestamp_subsec_nanos() as u64;
         let duration_deadline = Duration::from_nanos(1_000_000_000 - sub_second_ns);
         tokio::time::sleep_until(now_instant + duration_deadline).await;
+    }
+}
+
+async fn update_hour_change(sender: osc_sender::OscSender) {
+    loop {
+        let now = Local::now();
+        let moon_phase = calc_moon_phase(&now).await;
+        match send_moon_phase(&sender, moon_phase).await {
+            Ok(_) => {
+                debug!("Updated moon phase: {}", moon_phase);
+            }
+            Err(e) => {
+                error!("Error: {}", e);
+            }
+        }
+        let next = now + chrono::Duration::hours(1);
+        let dur = (next - now).to_std().unwrap();
+        sleep(dur).await;
     }
 }
 
@@ -150,7 +165,8 @@ async fn main() {
             tokio::spawn(demo_mode(sender));
         }
         false => {
-            tokio::spawn(update_second_change(sender));
+            tokio::spawn(update_second_change(sender.clone()));
+            tokio::spawn(update_hour_change(sender.clone()));
         }
     }
     info!("Press Ctrl-C to exit");
