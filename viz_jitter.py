@@ -8,7 +8,7 @@ if __name__ == "__main__":
     project_dir = Path(__file__).parent
     df = pl.read_ndjson(project_dir / "log.json")
     # convert the timestamp to a datetime object
-    df = df.with_columns(pl.col("timestamp").str.to_datetime(time_unit="us"))
+    df = df.with_columns(pl.col("timestamp").str.to_datetime(time_unit="us",format="%+"))
     start_time = df["timestamp"].min()  # Get the start time
     # add a new column with the elapsed time in microseconds
     df = df.with_columns(
