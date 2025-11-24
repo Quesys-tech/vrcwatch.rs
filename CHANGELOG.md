@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump tokio from 1.47.1 to 1.48.0
 - *(deps)* Bump clap from 4.5.48 to 4.5.49
 - *(deps)* Bump clap from 4.5.50 to 4.5.51
+- *(deps)* Bump actions/checkout from 5 to 6 in /.github/workflows
 
 ### ⚙️ Miscellaneous Tasks
 
