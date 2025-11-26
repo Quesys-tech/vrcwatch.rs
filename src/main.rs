@@ -6,7 +6,7 @@ use chrono::{DateTime, Local, TimeZone, Timelike, Utc};
 use clap::Parser;
 use moon_phase::MoonPhase;
 use tokio::signal;
-use tokio::time::{sleep, Duration};
+use tokio::time::{sleep, Duration, Instant};
 use tracing::{debug, error, info};
 mod osc_sender;
 
@@ -36,15 +36,21 @@ async fn send_time(
     let minute_fraction = (time.minute() as f64 + second_fraction) / 60.0;
     let hour_fraction = (time.hour() as f64 + minute_fraction) / 24.0;
 
-    sender.send(
-        &(second_fraction as f32),
-        "/avatar/parameters/DateTimeSecondFA",
-    )?;
-    sender.send(
-        &(minute_fraction as f32),
-        "/avatar/parameters/DateTimeMinuteFA",
-    )?;
-    sender.send(&(hour_fraction as f32), "/avatar/parameters/DateTimeHourFA")?;
+    sender
+        .send(
+            &(second_fraction as f32),
+            "/avatar/parameters/DateTimeSecondFA",
+        )
+        .await?;
+    sender
+        .send(
+            &(minute_fraction as f32),
+            "/avatar/parameters/DateTimeMinuteFA",
+        )
+        .await?;
+    sender
+        .send(&(hour_fraction as f32), "/avatar/parameters/DateTimeHourFA")
+        .await?;
 
     Ok(())
 }
@@ -54,7 +60,9 @@ async fn send_moon_phase(
     sender: &osc_sender::OscSender,
     moon_phase: f32,
 ) -> Result<(), Box<dyn Error>> {
-    sender.send(&moon_phase, "/avatar/parameters/MoonphaseF")?;
+    sender
+        .send(&moon_phase, "/avatar/parameters/MoonphaseF")
+        .await?;
     Ok(())
 }
 
@@ -94,19 +102,11 @@ async fn test_calc_moon_phase() {
 async fn tick_watch(sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
     send_time(sender, &now).await?;
-    let moon_phase = calc_moon_phase(&now).await;
-    send_moon_phase(sender, moon_phase).await?;
-
     Ok(())
 }
 
 async fn update_second_change(sender: osc_sender::OscSender) {
     loop {
-        let now = Local::now();
-        let sub_second = now.timestamp_subsec_nanos();
-        let sleep_duration = Duration::from_nanos(1_000_000_000 - sub_second as u64);
-        debug!("Sleeping for {}ms", sleep_duration.as_millis());
-        sleep(sleep_duration).await;
         debug!("Awake");
         match tick_watch(&sender).await {
             Ok(_) => {
@@ -116,6 +116,28 @@ async fn update_second_change(sender: osc_sender::OscSender) {
                 error!("Error: {}", e);
             }
         }
+        let now_instant = Instant::now();
+        let sub_second_ns = Local::now().timestamp_subsec_nanos() as u64;
+        let duration_deadline = Duration::from_nanos(1_000_000_000 - sub_second_ns);
+        tokio::time::sleep_until(now_instant + duration_deadline).await;
+    }
+}
+
+async fn update_hour_change(sender: osc_sender::OscSender) {
+    loop {
+        let now = Local::now();
+        let moon_phase = calc_moon_phase(&now).await;
+        match send_moon_phase(&sender, moon_phase).await {
+            Ok(_) => {
+                debug!("Updated moon phase: {}", moon_phase);
+            }
+            Err(e) => {
+                error!("Error: {}", e);
+            }
+        }
+        let next = now + chrono::Duration::hours(1);
+        let dur = (next - now).to_std().unwrap();
+        sleep(dur).await;
     }
 }
 
@@ -124,6 +146,8 @@ async fn main() {
     let cli = Cli::parse();
 
     tracing_subscriber::fmt()
+        .pretty()
+        .json()
         .with_max_level(if cli.debug {
             tracing::Level::DEBUG
         } else {
@@ -134,13 +158,15 @@ async fn main() {
     debug!("Debug mode enabled");
     info!("Destination port: {}:{}", cli.address, cli.port);
 
-    let sender = osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
+    let sender =
+        osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port).await;
     match cli.demo {
         true => {
             tokio::spawn(demo_mode(sender));
         }
         false => {
-            tokio::spawn(update_second_change(sender));
+            tokio::spawn(update_second_change(sender.clone()));
+            tokio::spawn(update_hour_change(sender.clone()));
         }
     }
     info!("Press Ctrl-C to exit");
