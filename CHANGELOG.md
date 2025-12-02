@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump clap from 4.5.50 to 4.5.51
 - *(deps)* Bump actions/checkout from 5 to 6 in /.github/workflows
 - *(deps)* Bump clap from 4.5.51 to 4.5.53
+- *(deps)* Bump tracing-subscriber from 0.3.20 to 0.3.22
 
 ### ⚙️ Miscellaneous Tasks
 
