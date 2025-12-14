@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 permissions:
   contents: write
@@ -30,7 +33,9 @@ jobs:
       - run: deno --allow-read --allow-write ci/bumper.ts ${{ steps.git-cliff.outputs.version }} -o Cargo.toml
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check && cargo update
-      - uses: peter-evans/create-pull-request@v7
+      # Only create PR on push events
+      - if: github.event_name == 'push'
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "chore(release): prepare for ${{ steps.git-cliff.outputs.version }}"
