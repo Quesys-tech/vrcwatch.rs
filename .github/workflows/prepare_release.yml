@@ -24,9 +24,12 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
-      - uses: astral-sh/setup-uv@v7
-      - run: uv run ci/bumper.py ${{ steps.git-cliff.outputs.version }}
-      - run: cargo update
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: lts
+      - run: deno --allow-read --allow-write ci/bumper.ts ${{ steps.git-cliff.outputs.version }} -o Cargo.toml
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo check && cargo update
       - uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
