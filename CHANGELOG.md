@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - *(ci)* Add deno before running deno script
 - *(ci)* Change runner from ubuntu to windows for release preparation
 - *(ci)* Update release workflow to handle pull requests correctly
+- *(ci)* Remove unnecessary pull request branch specification in release workflow
 
 ### 🔧 Dependencies
 
