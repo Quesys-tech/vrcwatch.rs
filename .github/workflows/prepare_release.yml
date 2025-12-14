@@ -24,6 +24,9 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: lts
       - run: deno --allow-read --allow-write ci/bumper.ts ${{ steps.git-cliff.outputs.version }} -o Cargo.toml
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check && cargo update
