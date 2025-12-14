@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 - Manage python dependency by uv
 - Remove python dependencies
 - Add deno bumper script
+- *(dependabot)* Remove unused uv package ecosystem configuration
 
 ## [0.4.4] - 2025-09-13
 
