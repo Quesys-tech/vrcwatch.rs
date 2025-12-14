@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - *(ci)* Add deno before running deno script
+- *(ci)* Change runner from ubuntu to windows for release preparation
 
 ### 🔧 Dependencies
 
