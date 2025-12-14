@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump clap from 4.5.51 to 4.5.53
 - *(deps)* Bump tracing-subscriber from 0.3.20 to 0.3.22
 - *(deps)* Bump tracing from 0.1.41 to 0.1.43
+- *(deps)* Bump peter-evans/create-pull-request in /.github/workflows
 
 ### ⚙️ Miscellaneous Tasks
 
