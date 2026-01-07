@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Bump clap from 4.5.53 to 4.5.54
+
 ## [0.4.5] - 2025-12-25
 
 ### 🐛 Bug Fixes
