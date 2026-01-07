@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Bump tokio from 1.48.0 to 1.49.0
+
 ## [0.4.5] - 2025-12-25
 
 ### 🐛 Bug Fixes
