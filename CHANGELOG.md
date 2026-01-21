@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Bump chrono from 0.4.42 to 0.4.43
+
 ## [0.4.5] - 2025-12-25
 
 ### 🐛 Bug Fixes
