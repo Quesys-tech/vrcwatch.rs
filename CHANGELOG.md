@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Remove moon-phase crate and replace with pracstro
+- *(deps)* Remove moon-phase crate and replace functionality with pracstro
+- *(deps)* Remove moon-phase crate and update tests for moon phase calculation
+- *(deps)* Update dependencies
+
 ## [0.4.5] - 2025-12-25
 
 ### 🐛 Bug Fixes
