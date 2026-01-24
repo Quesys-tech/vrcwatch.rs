@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- *(ci)* Enable multi-platform builds for CI workflow
+
 ## [0.4.6] - 2026-01-24
 
 ### 🔧 Dependencies
