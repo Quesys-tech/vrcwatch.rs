@@ -290,12 +290,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "moon-phase"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7984c1e5817a8e5559d0e7719e766b52048ced9553d932cdfd094f82ea7b79cd"
-
-[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -375,6 +369,12 @@ name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
+
+[[package]]
+name = "pracstro"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "044a54c3756bdbc538f9478c02d8183793437ab13c43bc6b6546b88de50e8480"
 
 [[package]]
 name = "proc-macro2"
@@ -661,7 +661,7 @@ version = "0.4.5"
 dependencies = [
  "chrono",
  "clap",
- "moon-phase",
+ "pracstro",
  "rosc",
  "tokio",
  "tracing",
