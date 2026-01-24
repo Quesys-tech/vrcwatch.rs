@@ -1,10 +1,8 @@
+use chrono::{DateTime, Local, TimeZone, Timelike};
+use clap::Parser;
+use pracstro::{moon, time};
 use std::error::Error;
 use std::net::Ipv4Addr;
-use std::time::SystemTime;
-
-use chrono::{DateTime, Local, TimeZone, Timelike, Utc};
-use clap::Parser;
-use moon_phase::MoonPhase;
 use tokio::signal;
 use tokio::time::{sleep, Duration};
 use tracing::{debug, error, info};
@@ -60,34 +58,39 @@ async fn send_moon_phase(
 
 /// Local time to moon phase (0.0: new moon, 0.5: full moon, 1.0: new moon)
 async fn calc_moon_phase<Tz: TimeZone>(local_time: &DateTime<Tz>) -> f32 {
-    let system_time: SystemTime = local_time.with_timezone(&Utc).into();
-    let moon_phase = MoonPhase::new(system_time);
-
-    moon_phase.phase as f32
+    let unix_time =
+        local_time.timestamp() as f64 + (local_time.timestamp_subsec_nanos() as f64) * 1e-9;
+    let d = time::Date::from_unix(unix_time);
+    return moon::MOON.phaseangle(d).turns() as f32;
 }
-#[tokio::test]
-async fn test_calc_moon_phase() {
-    let full_moon_list = [
-        (2025, 1, 13, 22, 27),
-        (2025, 2, 12, 13, 53),
-        (2025, 3, 14, 6, 55),
-        (2025, 4, 13, 0, 22),
-        (2025, 5, 12, 16, 56),
-        (2025, 6, 11, 07, 44),
-    ];
+#[cfg(test)]
+mod tests {
+    use super::calc_moon_phase;
+    use chrono::{TimeZone, Utc};
+    #[tokio::test]
+    async fn test_calc_moon_phase() {
+        let full_moon_list = [
+            (2025, 1, 13, 22, 27),
+            (2025, 2, 12, 13, 53),
+            (2025, 3, 14, 6, 55),
+            (2025, 4, 13, 0, 22),
+            (2025, 5, 12, 16, 56),
+            (2025, 6, 11, 07, 44),
+        ];
 
-    for (year, month, day, hour, min) in full_moon_list {
-        let local_time = Utc
-            .with_ymd_and_hms(year, month, day, hour, min, 0)
-            .unwrap();
-        let moon_phase = calc_moon_phase(&local_time).await;
-        let error = moon_phase - 0.5;
-        assert!(
-            error.abs() < 0.01 / 0.5, // 1% error
-            "full moon at {}: calc:{}",
-            local_time,
-            moon_phase
-        );
+        for (year, month, day, hour, min) in full_moon_list {
+            let local_time = Utc
+                .with_ymd_and_hms(year, month, day, hour, min, 0)
+                .unwrap();
+            let moon_phase = calc_moon_phase(&local_time).await;
+            let error = moon_phase - 0.5;
+            assert!(
+                error.abs() < 0.01 / 0.5, // 1% error
+                "full moon at {}: calc:{}",
+                local_time,
+                moon_phase
+            );
+        }
     }
 }
 
