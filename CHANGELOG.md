@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🚀 Features
+
+- *(ci)* Provide linux x86_64 build
+
+### 🐛 Bug Fixes
+
+- Use cross-platform signal handling
+
 ### ⚙️ Miscellaneous Tasks
 
 - *(ci)* Enable multi-platform builds for CI workflow
