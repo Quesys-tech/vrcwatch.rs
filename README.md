@@ -14,7 +14,9 @@ VRChat向けにOSCメッセージを送信する[vrcwatch](https://github.com/me
 
 ## システム要件
 
-- OS: Windows 10/11
+- OS: 
+  - Windows: Windows 10以降
+  - Linux: Ubuntu 24.04以降
 - プロセッサ: x86-64
 
 ### 対応する時計
