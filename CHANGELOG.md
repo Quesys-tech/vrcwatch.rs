@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🐛 Bug Fixes
+
+- Simplify return statement in calc_moon_phase function
+
+### 📚 Documentation
+
+- Update system requirements to include Linux support
+
 ## [0.5.0] - 2026-01-28
 
 ### 🚀 Features
