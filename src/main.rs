@@ -61,7 +61,7 @@ async fn calc_moon_phase<Tz: TimeZone>(local_time: &DateTime<Tz>) -> f32 {
     let unix_time =
         local_time.timestamp() as f64 + (local_time.timestamp_subsec_nanos() as f64) * 1e-9;
     let d = time::Date::from_unix(unix_time);
-    return moon::MOON.phaseangle(d).turns() as f32;
+    moon::MOON.phaseangle(d).turns() as f32
 }
 #[cfg(test)]
 mod tests {
