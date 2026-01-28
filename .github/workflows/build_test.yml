@@ -2,7 +2,7 @@ name: Build and Unit Test
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
 
 permissions:
@@ -13,7 +13,10 @@ env:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - run: rustup toolchain install stable --profile minimal --no-self-update
