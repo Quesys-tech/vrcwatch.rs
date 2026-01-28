@@ -147,8 +147,14 @@ async fn main() {
         }
     }
     info!("Press Ctrl-C to exit");
-    let mut sigint_handler = signal::windows::ctrl_c().unwrap();
-    sigint_handler.recv().await;
+    match signal::ctrl_c().await {
+        Ok(()) => {
+            debug!("Shutdown signal received");
+        }
+        Err(err) => {
+            error!("Unable to listen for shutdown signal: {}", err);
+        }
+    }
     info!("Exiting...");
 }
 
