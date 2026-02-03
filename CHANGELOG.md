@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 🔧 Dependencies
+
+- *(deps)* Bump bytes in the cargo group across 1 directory
+
 ## [0.5.0] - 2026-01-28
 
 ### 🚀 Features
