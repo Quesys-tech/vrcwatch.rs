@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - *(deps)* Bump bytes in the cargo group across 1 directory
 - *(deps)* Bump time in the cargo group across 1 directory
+- *(deps)* Bump clap from 4.5.55 to 4.5.57
 
 ## [0.5.0] - 2026-01-28
 
