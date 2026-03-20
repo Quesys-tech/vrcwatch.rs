@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump clap from 4.5.55 to 4.5.57
 - *(deps)* Bump tokio from 1.49.0 to 1.50.0
 - *(deps)* Bump pracstro from 1.1.0 to 1.1.1
+- *(deps)* Bump clap from 4.5.58 to 4.6.0
 
 ## [0.5.0] - 2026-01-28
 
