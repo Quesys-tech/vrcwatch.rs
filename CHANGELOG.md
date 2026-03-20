@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump pracstro from 1.1.0 to 1.1.1
 - *(deps)* Bump clap from 4.5.58 to 4.6.0
 - *(deps)* Bump tracing-subscriber from 0.3.22 to 0.3.23
+- *(deps)* Bump chrono from 0.4.43 to 0.4.44
 
 ## [0.5.0] - 2026-01-28
 
