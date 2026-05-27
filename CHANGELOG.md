@@ -8,6 +8,15 @@ All notable changes to this project will be documented in this file.
 
 - *(deps)* Bump tokio from 1.52.1 to 1.52.3
 
+### ⚙️ Miscellaneous Tasks
+
+- Categorize security commits in changelog configuration
+
+### 🛡️ Security
+
+- Pin github actions
+- Remove automatic update to prevent supply-chain attack
+
 ## [0.5.1] - 2026-04-25
 
 ### 🔧 Dependencies
