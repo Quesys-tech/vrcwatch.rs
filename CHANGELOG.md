@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### 🔧 Dependencies
 
 - *(deps)* Bump tokio from 1.52.1 to 1.52.3
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
 
 ### ⚙️ Miscellaneous Tasks
 
