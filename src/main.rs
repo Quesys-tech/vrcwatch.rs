@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local, TimeZone, Timelike};
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 use pracstro::{moon, time};
 use std::error::Error;
 use std::net::Ipv4Addr;
@@ -8,22 +8,37 @@ use tokio::time::{sleep, Duration};
 use tracing::{debug, error, info};
 mod osc_sender;
 
-#[derive(Parser)]
-#[command(version, about, long_about = None)]
-struct Cli {
-    #[arg(
-        short,
-        long,
-        default_value = "127.0.0.1",
-        help = "destination IP address"
-    )]
+#[derive(Args, Debug, Clone)]
+struct RunArgs {
+    #[arg(short, long, help = "destination IP address")]
     address: Ipv4Addr,
-    #[arg(short, long, default_value = "9000", help = "destination port")]
+    #[arg(short, long, help = "destination port")]
     port: u16,
     #[arg(long, help = "enable debug mode")]
     debug: bool,
     #[arg(long, help = "demo mode, the watch shows 10:08:42")]
     demo: bool,
+}
+impl Default for RunArgs {
+    fn default() -> Self {
+        Self {
+            address: Ipv4Addr::new(127, 0, 0, 1),
+            port: 9000,
+            debug: false,
+            demo: false,
+        }
+    }
+}
+
+#[derive(Subcommand)]
+enum Command {
+    Run(RunArgs),
+}
+
+#[derive(Parser)]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Command>,
 }
 
 async fn send_time(
@@ -122,12 +137,27 @@ async fn update_second_change(sender: osc_sender::OscSender) {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let cli = Cli::parse();
+async fn demo_mode(sender: osc_sender::OscSender) {
+    let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
 
+    info!("Display mode: fixed at {}", display_time);
+
+    loop {
+        match send_time(&sender, &display_time).await {
+            Ok(_) => {
+                debug!("Tick watch");
+            }
+            Err(e) => {
+                error!("Error: {}", e);
+            }
+        };
+        sleep(Duration::from_secs(1)).await;
+    }
+}
+
+async fn run_watch(args: &RunArgs) {
     tracing_subscriber::fmt()
-        .with_max_level(if cli.debug {
+        .with_max_level(if args.debug {
             tracing::Level::DEBUG
         } else {
             tracing::Level::INFO
@@ -135,10 +165,11 @@ async fn main() {
         .init();
 
     debug!("Debug mode enabled");
-    info!("Destination port: {}:{}", cli.address, cli.port);
+    info!("Destination port: {}:{}", args.address, args.port);
 
-    let sender = osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
-    match cli.demo {
+    let sender =
+        osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, args.address, args.port);
+    match args.demo {
         true => {
             tokio::spawn(demo_mode(sender));
         }
@@ -158,20 +189,14 @@ async fn main() {
     info!("Exiting...");
 }
 
-async fn demo_mode(sender: osc_sender::OscSender) {
-    let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
-
-    info!("Display mode: fixed at {}", display_time);
-
-    loop {
-        match send_time(&sender, &display_time).await {
-            Ok(_) => {
-                debug!("Tick watch");
-            }
-            Err(e) => {
-                error!("Error: {}", e);
-            }
-        };
-        sleep(Duration::from_secs(1)).await;
+#[tokio::main]
+async fn main() {
+    match Cli::parse().command {
+        Some(Command::Run(args)) => {
+            run_watch(&args).await;
+        }
+        None => {
+            run_watch(&RunArgs::default()).await;
+        }
     }
 }
