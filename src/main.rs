@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 mod osc_sender;
-mod ovr_install;
+mod ovr_manifest;
 mod run_watch;
 
 #[derive(Subcommand)]
@@ -29,7 +29,7 @@ async fn main() {
             run_watch::run_watch(&args).await;
         }
         Some(Command::Status) => {
-            let installed = ovr_install::ovr_manifest_status().await;
+            let installed = ovr_manifest::status().await;
             match installed {
                 Ok(true) => println!("VRCWatch is installed."),
                 Ok(false) => println!("VRCWatch is not installed."),
@@ -39,7 +39,7 @@ async fn main() {
         Some(Command::Install) => {
             println!("Installation functionality is not implemented yet.");
         }
-        Some(Command::Uninstall) => match ovr_install::ovr_manifest_status().await {
+        Some(Command::Uninstall) => match ovr_manifest::status().await {
             Ok(true) => {
                 println!("Uninstallation functionality is not implemented yet.")
             }

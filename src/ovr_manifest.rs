@@ -4,7 +4,7 @@ use openvr::errors::VRApplicationError;
 
 const OVR_APP_KEY: &str = "tech.qsys.vrcwatch";
 
-pub async fn ovr_manifest_status() -> Result<bool, VRApplicationError> {
+pub async fn status() -> Result<bool, VRApplicationError> {
     let context = unsafe { openvr::init(openvr::ApplicationType::Utility) }
         .expect("Unable in OpenVR initialization");
     let mut application = context
