@@ -1,6 +1,17 @@
+use dirs::config_local_dir;
+use std::path::PathBuf;
 extern crate openvr;
 
-const OVR_APP_KEY: &str = "tech.qsys.vrcwatch";
+const ORGANIZATION: &str = "tech.qsys";
+const APPLICATION: &str = env!("CARGO_PKG_NAME");
+const OVR_APP_KEY: &str = "tech.qsys.vrcwatch-rs";
+
+pub async fn manifest_path() -> PathBuf {
+    let dir = config_local_dir().unwrap();
+    dir.join(ORGANIZATION)
+        .join(APPLICATION)
+        .join("manifest.vrmanifest")
+}
 
 pub async fn status() {
     let context = unsafe { openvr::init(openvr::ApplicationType::Utility) }
@@ -53,7 +64,15 @@ pub async fn uninstall() {
     match application.is_application_installed(OVR_APP_KEY) {
         Ok(installed) => {
             if installed {
-                todo!("Uninstallation functionality is not implemented yet.");
+                let path = manifest_path().await;
+                if !path.exists() {
+                    eprintln!("Manifest file does not exist at expected path: {:?}", path);
+                } else {
+                    application
+                        .remove_application_manifest(&path)
+                        .expect("Failed to uninstall VRCWatch");
+                    println!("VRCWatch has been uninstalled from SteamVR.");
+                }
             } else {
                 println!("VRCWatch is not installed in SteamVR.");
             }
