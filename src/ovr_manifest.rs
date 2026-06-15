@@ -1,14 +1,17 @@
 use dirs::config_local_dir;
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
+use tokio::fs::remove_dir_all;
 extern crate openvr;
+use serde::Serialize;
 
 const ORGANIZATION: &str = "tech.qsys";
 const APPLICATION: &str = env!("CARGO_PKG_NAME");
 const OVR_APP_KEY: &str = "tech.qsys.vrcwatch-rs";
 
 pub async fn manifest_path() -> PathBuf {
-    let dir = config_local_dir().unwrap();
-    dir.join(ORGANIZATION)
+    config_local_dir()
+        .unwrap()
+        .join(ORGANIZATION)
         .join(APPLICATION)
         .join("manifest.vrmanifest")
 }
@@ -33,6 +36,72 @@ pub async fn status() {
         }
     }
 }
+#[derive(Debug, Serialize)]
+struct SteamVrApplication {
+    app_key: &'static str,
+    launch_type: &'static str,
+
+    #[cfg(target_os = "windows")]
+    binary_path_windows: String,
+
+    #[cfg(target_os = "linux")]
+    binary_path_linux: String,
+
+    #[cfg(target_os = "macos")]
+    binary_path_osx: String,
+
+    is_dashboard_overlay: bool,
+    strings: SteamVrStrings,
+}
+
+#[derive(Debug, Serialize)]
+struct SteamVrStrings {
+    en_us: SteamVrLocalizedStrings,
+}
+
+#[derive(Debug, Serialize)]
+struct SteamVrLocalizedStrings {
+    name: &'static str,
+    description: &'static str,
+}
+
+async fn create_manifest() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let manifest = SteamVrApplication {
+        app_key: OVR_APP_KEY,
+        launch_type: "external",
+        #[cfg(target_os = "windows")]
+        binary_path_windows: env::current_exe()
+            .expect("Failed to get executable path!")
+            .to_str()
+            .unwrap()
+            .to_owned(),
+        #[cfg(target_os = "linux")]
+        binary_path_linux: env::current_exe()
+            .expect("Failed to get executable path!")
+            .to_str()
+            .unwrap()
+            .to_owned(),
+        #[cfg(target_os = "macos")]
+        binary_path_osx: env::current_exe()
+            .expect("Failed to get executable path!")
+            .to_str()
+            .unwrap()
+            .to_owned(),
+        is_dashboard_overlay: false,
+        strings: SteamVrStrings {
+            en_us: SteamVrLocalizedStrings {
+                name: env!("CARGO_PKG_NAME"),
+                description: env!("CARGO_PKG_DESCRIPTION"),
+            },
+        },
+    };
+
+    let manifest_json = serde_json::to_string_pretty(&manifest)?;
+    let path = manifest_path().await;
+    std::fs::create_dir_all(path.parent().unwrap())?;
+    std::fs::write(&path, manifest_json)?;
+    Ok(path)
+}
 
 pub async fn install() {
     let context = unsafe { openvr::init(openvr::ApplicationType::Utility) }
@@ -45,7 +114,13 @@ pub async fn install() {
             if installed {
                 println!("VRCWatch is already installed in SteamVR.");
             } else {
-                todo!("Installation functionality is not implemented yet.");
+                let manifest_path = create_manifest().await.expect("Failed to create manifest");
+                // Implementation for installing the manifest would go here
+                println!("Manifest created at: {:?}", manifest_path);
+                match application.add_application_manifest(&manifest_path, true) {
+                    Ok(_) => println!("VRCWatch has been installed in SteamVR."),
+                    Err(e) => eprintln!("Failed to install VRCWatch: {:?}", e),
+                }
             }
         }
         Err(e) => {
@@ -71,6 +146,9 @@ pub async fn uninstall() {
                     application
                         .remove_application_manifest(&path)
                         .expect("Failed to uninstall VRCWatch");
+                    remove_dir_all(path.parent().unwrap())
+                        .await
+                        .expect("Failed to remove manifest directory");
                     println!("VRCWatch has been uninstalled from SteamVR.");
                 }
             } else {
