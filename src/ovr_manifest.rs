@@ -117,7 +117,7 @@ pub async fn install() {
                 let manifest_path = create_manifest().await.expect("Failed to create manifest");
                 // Implementation for installing the manifest would go here
                 println!("Manifest created at: {:?}", manifest_path);
-                match application.add_application_manifest(&manifest_path, true) {
+                match application.add_application_manifest(&manifest_path, false) {
                     Ok(_) => println!("VRCWatch has been installed in SteamVR."),
                     Err(e) => eprintln!("Failed to install VRCWatch: {:?}", e),
                 }
