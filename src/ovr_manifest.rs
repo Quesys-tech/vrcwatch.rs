@@ -37,6 +37,11 @@ pub async fn status() {
     }
 }
 #[derive(Debug, Serialize)]
+struct SteamVrManifest {
+    applications: [SteamVrApplication; 1],
+}
+
+#[derive(Debug, Serialize)]
 struct SteamVrApplication {
     app_key: &'static str,
     launch_type: &'static str,
@@ -66,34 +71,36 @@ struct SteamVrLocalizedStrings {
 }
 
 async fn create_manifest() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let manifest = SteamVrApplication {
-        app_key: OVR_APP_KEY,
-        launch_type: "external",
-        #[cfg(target_os = "windows")]
-        binary_path_windows: env::current_exe()
-            .expect("Failed to get executable path!")
-            .to_str()
-            .unwrap()
-            .to_owned(),
-        #[cfg(target_os = "linux")]
-        binary_path_linux: env::current_exe()
-            .expect("Failed to get executable path!")
-            .to_str()
-            .unwrap()
-            .to_owned(),
-        #[cfg(target_os = "macos")]
-        binary_path_osx: env::current_exe()
-            .expect("Failed to get executable path!")
-            .to_str()
-            .unwrap()
-            .to_owned(),
-        is_dashboard_overlay: false,
-        strings: SteamVrStrings {
-            en_us: SteamVrLocalizedStrings {
-                name: env!("CARGO_PKG_NAME"),
-                description: env!("CARGO_PKG_DESCRIPTION"),
+    let manifest = SteamVrManifest {
+        applications: [SteamVrApplication {
+            app_key: OVR_APP_KEY,
+            launch_type: "external",
+            #[cfg(target_os = "windows")]
+            binary_path_windows: env::current_exe()
+                .expect("Failed to get executable path!")
+                .to_str()
+                .unwrap()
+                .to_owned(),
+            #[cfg(target_os = "linux")]
+            binary_path_linux: env::current_exe()
+                .expect("Failed to get executable path!")
+                .to_str()
+                .unwrap()
+                .to_owned(),
+            #[cfg(target_os = "macos")]
+            binary_path_osx: env::current_exe()
+                .expect("Failed to get executable path!")
+                .to_str()
+                .unwrap()
+                .to_owned(),
+            is_dashboard_overlay: false,
+            strings: SteamVrStrings {
+                en_us: SteamVrLocalizedStrings {
+                    name: env!("CARGO_PKG_NAME"),
+                    description: env!("CARGO_PKG_DESCRIPTION"),
+                },
             },
-        },
+        }],
     };
 
     let manifest_json = serde_json::to_string_pretty(&manifest)?;
