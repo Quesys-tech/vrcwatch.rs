@@ -11,9 +11,14 @@ use crate::osc_sender;
 
 #[derive(Args, Debug, Clone)]
 pub struct RunArgs {
-    #[arg(short, long, help = "destination IP address")]
+    #[arg(
+        short,
+        long,
+        default_value = "127.0.0.1",
+        help = "destination IP address"
+    )]
     address: Ipv4Addr,
-    #[arg(short, long, help = "destination port")]
+    #[arg(short, long, default_value_t = 9000, help = "destination port")]
     port: u16,
     #[arg(long, help = "enable debug mode")]
     debug: bool,
@@ -28,6 +33,13 @@ impl Default for RunArgs {
             debug: false,
             demo: false,
         }
+    }
+}
+
+impl RunArgs {
+    #[cfg(test)]
+    pub(crate) fn is_demo(&self) -> bool {
+        self.demo
     }
 }
 
