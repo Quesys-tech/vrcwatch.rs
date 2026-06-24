@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Bump taiki-e/install-action in /.github/workflows
 - *(deps)* Bump actions/checkout in /.github/workflows
 - *(deps)* Bump chrono from 0.4.44 to 0.4.45
+- *(deps)* Bump actions/checkout in /.github/workflows
 
 ### ⚙️ Miscellaneous Tasks
 
