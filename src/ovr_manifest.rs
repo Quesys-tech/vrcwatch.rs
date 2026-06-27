@@ -43,6 +43,7 @@ struct SteamVrManifest {
 
 #[derive(Debug, Serialize)]
 struct SteamVrApplication {
+    source: &'static str,
     app_key: &'static str,
     launch_type: &'static str,
 
@@ -73,8 +74,9 @@ struct SteamVrLocalizedStrings {
 async fn create_manifest() -> Result<PathBuf, Box<dyn std::error::Error>> {
     let manifest = SteamVrManifest {
         applications: [SteamVrApplication {
+            source: "builtin",
             app_key: OVR_APP_KEY,
-            launch_type: "external",
+            launch_type: "binary",
             #[cfg(target_os = "windows")]
             binary_path_windows: env::current_exe()
                 .expect("Failed to get executable path!")
@@ -93,7 +95,7 @@ async fn create_manifest() -> Result<PathBuf, Box<dyn std::error::Error>> {
                 .to_str()
                 .unwrap()
                 .to_owned(),
-            is_dashboard_overlay: false,
+            is_dashboard_overlay: true,
             strings: SteamVrStrings {
                 en_us: SteamVrLocalizedStrings {
                     name: env!("CARGO_PKG_NAME"),
