@@ -124,12 +124,18 @@ pub async fn install() {
         Ok(installed) => {
             if installed {
                 println!("VRCWatch is already installed in SteamVR.");
+                println!(
+                    "If executable path has changed, please uninstall and reinstall VRCWatch."
+                );
             } else {
                 let manifest_path = create_manifest().await.expect("Failed to create manifest");
                 // Implementation for installing the manifest would go here
                 println!("Manifest created at: {:?}", manifest_path);
                 match application.add_application_manifest(&manifest_path, false) {
-                    Ok(_) => println!("VRCWatch has been installed in SteamVR."),
+                    Ok(_) => {
+                        println!("VRCWatch has been installed in SteamVR.");
+                        println!("If executable path has changed, please uninstall and reinstall VRCWatch.");
+                    }
                     Err(openvr::errors::VRApplicationError::AppKeyAlreadyExists) => {
                         println!("VRCWatch is already registered in SteamVR.");
                     }
