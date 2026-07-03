@@ -988,6 +988,7 @@ dependencies = [
  "clap",
  "dirs",
  "openvr",
+ "openvr_sys",
  "pracstro",
  "rosc",
  "serde",

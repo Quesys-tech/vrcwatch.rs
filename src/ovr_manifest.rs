@@ -4,6 +4,8 @@ use tokio::fs::remove_dir_all;
 extern crate openvr;
 use serde::Serialize;
 
+mod registration;
+
 const ORGANIZATION: &str = "tech.qsys";
 const APPLICATION: &str = env!("CARGO_PKG_NAME");
 const OVR_APP_KEY: &str = "tech.qsys.vrcwatch-rs";
@@ -128,12 +130,25 @@ pub async fn install() {
                 println!("Manifest created at: {:?}", manifest_path);
                 match application.add_application_manifest(&manifest_path, false) {
                     Ok(_) => println!("VRCWatch has been installed in SteamVR."),
-                    Err(e) => eprintln!("Failed to install VRCWatch: {:?}", e),
+                    Err(openvr::errors::VRApplicationError::AppKeyAlreadyExists) => {
+                        println!("VRCWatch is already registered in SteamVR.");
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to install VRCWatch: {e:?}");
+                        return;
+                    }
                 }
+            }
+
+            match registration::configure_current_process(OVR_APP_KEY) {
+                Ok(_) => {
+                    println!("VRCWatch has been identified and enabled for SteamVR auto launch.")
+                }
+                Err(e) => eprintln!("Failed to configure VRCWatch in SteamVR: {e}"),
             }
         }
         Err(e) => {
-            eprintln!("Error checking VRCWatch installation status: {:?}", e);
+            eprintln!("Error checking VRCWatch installation status: {e:?}");
         }
     }
 }
