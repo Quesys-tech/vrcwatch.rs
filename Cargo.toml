@@ -11,8 +11,13 @@ description = "A VRChat watch driver via OSC"
 [dependencies]
 chrono = "0.4.45"
 clap = { version = "4.6.1", features = ["derive"] }
+dirs = "6.0.0"
+openvr = "0.9.0"
+openvr_sys = "2.1.4"
 pracstro = "1.1.1"
 rosc = "0.11.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"

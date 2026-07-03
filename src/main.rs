@@ -1,177 +1,96 @@
-use chrono::{DateTime, Local, TimeZone, Timelike};
-use clap::Parser;
-use pracstro::{moon, time};
-use std::error::Error;
-use std::net::Ipv4Addr;
-use tokio::signal;
-use tokio::time::{sleep, Duration};
-use tracing::{debug, error, info};
+use clap::{Parser, Subcommand};
+
 mod osc_sender;
+mod ovr_manifest;
+mod run_watch;
+
+#[derive(Subcommand)]
+enum Command {
+    /// Run VRCWatch with specified options
+    Run(run_watch::RunArgs),
+    /// Check if VRCWatch is installed in SteamVR
+    Status,
+    /// Install VRCWatch in SteamVR (not implemented yet)
+    Install,
+    /// Uninstall VRCWatch from SteamVR (not implemented yet)
+    Uninstall,
+}
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(
-        short,
-        long,
-        default_value = "127.0.0.1",
-        help = "destination IP address"
-    )]
-    address: Ipv4Addr,
-    #[arg(short, long, default_value = "9000", help = "destination port")]
-    port: u16,
-    #[arg(long, help = "enable debug mode")]
-    debug: bool,
-    #[arg(long, help = "demo mode, the watch shows 10:08:42")]
-    demo: bool,
-}
-
-async fn send_time(
-    sender: &osc_sender::OscSender,
-    time: &DateTime<Local>,
-) -> Result<(), Box<dyn Error>> {
-    let second_fraction = (time.second() as f64) / 60.0;
-    let minute_fraction = (time.minute() as f64 + second_fraction) / 60.0;
-    let hour_fraction = (time.hour() as f64 + minute_fraction) / 24.0;
-
-    sender.send(
-        &(second_fraction as f32),
-        "/avatar/parameters/DateTimeSecondFA",
-    )?;
-    sender.send(
-        &(minute_fraction as f32),
-        "/avatar/parameters/DateTimeMinuteFA",
-    )?;
-    sender.send(&(hour_fraction as f32), "/avatar/parameters/DateTimeHourFA")?;
-
-    Ok(())
-}
-
-/// Send moon phase to the watch (address: /avatar/parameters/MoonPhaseF, type: float)
-async fn send_moon_phase(
-    sender: &osc_sender::OscSender,
-    moon_phase: f32,
-) -> Result<(), Box<dyn Error>> {
-    sender.send(&moon_phase, "/avatar/parameters/MoonphaseF")?;
-    Ok(())
-}
-
-/// Local time to moon phase (0.0: new moon, 0.5: full moon, 1.0: new moon)
-async fn calc_moon_phase<Tz: TimeZone>(local_time: &DateTime<Tz>) -> f32 {
-    let unix_time =
-        local_time.timestamp() as f64 + (local_time.timestamp_subsec_nanos() as f64) * 1e-9;
-    let d = time::Date::from_unix(unix_time);
-    moon::MOON.phaseangle(d).turns() as f32
-}
-#[cfg(test)]
-mod tests {
-    use super::calc_moon_phase;
-    use chrono::{TimeZone, Utc};
-    #[tokio::test]
-    async fn test_calc_moon_phase() {
-        let full_moon_list = [
-            (2025, 1, 13, 22, 27),
-            (2025, 2, 12, 13, 53),
-            (2025, 3, 14, 6, 55),
-            (2025, 4, 13, 0, 22),
-            (2025, 5, 12, 16, 56),
-            (2025, 6, 11, 07, 44),
-        ];
-
-        for (year, month, day, hour, min) in full_moon_list {
-            let local_time = Utc
-                .with_ymd_and_hms(year, month, day, hour, min, 0)
-                .unwrap();
-            let moon_phase = calc_moon_phase(&local_time).await;
-            let error = moon_phase - 0.5;
-            assert!(
-                error.abs() < 0.01 / 0.5, // 1% error
-                "full moon at {}: calc:{}",
-                local_time,
-                moon_phase
-            );
-        }
-    }
-}
-
-async fn tick_watch(sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>> {
-    let now = Local::now();
-    send_time(sender, &now).await?;
-    let moon_phase = calc_moon_phase(&now).await;
-    send_moon_phase(sender, moon_phase).await?;
-
-    Ok(())
-}
-
-async fn update_second_change(sender: osc_sender::OscSender) {
-    loop {
-        let now = Local::now();
-        let sub_second = now.timestamp_subsec_nanos();
-        let sleep_duration = Duration::from_nanos(1_000_000_000 - sub_second as u64);
-        debug!("Sleeping for {}ms", sleep_duration.as_millis());
-        sleep(sleep_duration).await;
-        debug!("Awake");
-        match tick_watch(&sender).await {
-            Ok(_) => {
-                debug!("Tick watch");
-            }
-            Err(e) => {
-                error!("Error: {}", e);
-            }
-        }
-    }
+    #[command(subcommand)]
+    command: Option<Command>,
+    #[command(flatten)]
+    run_args: run_watch::RunArgs,
 }
 
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
 
-    tracing_subscriber::fmt()
-        .with_max_level(if cli.debug {
-            tracing::Level::DEBUG
-        } else {
-            tracing::Level::INFO
-        })
-        .init();
-
-    debug!("Debug mode enabled");
-    info!("Destination port: {}:{}", cli.address, cli.port);
-
-    let sender = osc_sender::OscSender::new(Ipv4Addr::new(127, 0, 0, 1), 0, cli.address, cli.port);
-    match cli.demo {
-        true => {
-            tokio::spawn(demo_mode(sender));
+    match cli.command {
+        Some(Command::Run(args)) => {
+            run_watch::run_watch(&args).await;
         }
-        false => {
-            tokio::spawn(update_second_change(sender));
+        Some(Command::Status) => {
+            ovr_manifest::status().await;
+        }
+        Some(Command::Install) => {
+            ovr_manifest::install().await;
+        }
+        Some(Command::Uninstall) => {
+            ovr_manifest::uninstall().await;
+        }
+        None => {
+            run_watch::run_watch(&cli.run_args).await;
         }
     }
-    info!("Press Ctrl-C to exit");
-    match signal::ctrl_c().await {
-        Ok(()) => {
-            debug!("Shutdown signal received");
-        }
-        Err(err) => {
-            error!("Unable to listen for shutdown signal: {}", err);
-        }
-    }
-    info!("Exiting...");
 }
 
-async fn demo_mode(sender: osc_sender::OscSender) {
-    let display_time = Local.with_ymd_and_hms(2017, 2, 1, 10, 8, 42).unwrap(); // https://museum.seiko.co.jp/knowledge/trivia01/
+#[cfg(test)]
+mod tests {
+    use super::{Cli, Command};
+    use clap::error::ErrorKind;
+    use clap::Parser;
 
-    info!("Display mode: fixed at {}", display_time);
+    #[test]
+    fn parses_demo_as_default_run_option() {
+        let cli = Cli::try_parse_from(["vrcwatch-rs", "--demo"]).unwrap();
 
-    loop {
-        match send_time(&sender, &display_time).await {
-            Ok(_) => {
-                debug!("Tick watch");
-            }
-            Err(e) => {
-                error!("Error: {}", e);
-            }
+        assert!(matches!(cli.command, None));
+        assert!(cli.run_args.is_demo());
+    }
+
+    #[test]
+    fn parses_demo_on_run_subcommand() {
+        let cli = Cli::try_parse_from(["vrcwatch-rs", "run", "--demo"]).unwrap();
+
+        match cli.command {
+            Some(Command::Run(args)) => assert!(args.is_demo()),
+            _ => panic!("expected run subcommand"),
+        }
+    }
+
+    #[test]
+    fn parses_short_version_flag() {
+        assert_version_flag("-V");
+    }
+
+    #[test]
+    fn parses_long_version_flag() {
+        assert_version_flag("--version");
+    }
+
+    fn assert_version_flag(flag: &str) {
+        let err = match Cli::try_parse_from(["vrcwatch-rs", flag]) {
+            Ok(_) => panic!("expected version display"),
+            Err(err) => err,
         };
-        sleep(Duration::from_secs(1)).await;
+
+        assert_eq!(err.kind(), ErrorKind::DisplayVersion);
+        assert!(err
+            .to_string()
+            .contains(&format!("vrcwatch-rs {}", env!("CARGO_PKG_VERSION"))));
     }
 }
