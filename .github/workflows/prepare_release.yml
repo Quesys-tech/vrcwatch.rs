@@ -28,7 +28,10 @@ jobs:
       - uses: taiki-e/install-action@25435dc8dd3baed7417e0c96d3fe89013a5b2e09 # v2.81.3
         with:
           tool: cargo-edit
-      - run: cargo set-version ${{ steps.git-cliff.outputs.version }}
+      - name: Set version in Cargo.toml
+        run: |
+          $version = "${{ steps.git-cliff.outputs.version }}" -replace '^v',''
+          cargo set-version ${{ steps.git-cliff.outputs.version }}
       - run: cargo update -w
       # Only create PR on push events
       - if: github.event_name == 'push'
