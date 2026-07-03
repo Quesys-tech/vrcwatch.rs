@@ -19,6 +19,9 @@ All notable changes to this project will be documented in this file.
 - Openvr manifest
 - Restore version flag and add test
 - Improve installation messages for VRCWatch in SteamVR
+- *(ci)* Strip leading `v` from git-cliff output
+- *(release)* Use bash for  ease of maintenance
+- *(release)* Replace cargo update with cargo check in release workflow
 
 ### 💼 Other
 
@@ -49,6 +52,7 @@ All notable changes to this project will be documented in this file.
 
 - Categorize security commits in changelog configuration
 - Remove changelog update on pr
+- Use cargo-edit in release workflow
 
 ### 🛡️ Security
 
