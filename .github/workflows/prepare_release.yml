@@ -25,10 +25,11 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
-      - uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 # v2.0.4
+      - uses: taiki-e/install-action@25435dc8dd3baed7417e0c96d3fe89013a5b2e09 # v2.81.3
         with:
-          deno-version: lts
-      - run: deno --allow-read --allow-write ci/bumper.ts ${{ steps.git-cliff.outputs.version }} -o Cargo.toml
+          tool: cargo-edit
+      - run: cargo set-version ${{ steps.git-cliff.outputs.version }}
+      - run: cargo update -w
       # Only create PR on push events
       - if: github.event_name == 'push'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
