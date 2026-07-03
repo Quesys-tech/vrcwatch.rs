@@ -2,7 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.6.0] - 2026-07-03
+
+### 🚀 Features
+
+- Add commands for checking installation and managing VRCWatch in SteamVR
+- Add option to register manifest for VRCWatch in SteamVR
+- Command to add to SteamVR auto start
+- Automatic launch on steam vr start up
+
+### 🐛 Bug Fixes
+
+- Change manifest installation mode
+- Wrap generated app in a SteamVR manifest
+- Demo mode is now working
+- Openvr manifest
+- Restore version flag and add test
+- Improve installation messages for VRCWatch in SteamVR
+
+### 💼 Other
+
+- Add OpenVR
+
+### 📚 Documentation
+
+- Update README to include SteamVR auto-launch options
+- Update README to clarify SteamVR status check command
+
+### 🚜 Refactor
+
+- Command parser and arguments for new options
+- Separate watch driving codes into run_watch.rs
+- Rename ovr_install to ovr_manifest
+- Print status in ovr_manifest crate
 
 ### 🔧 Dependencies
 
@@ -16,6 +48,7 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Categorize security commits in changelog configuration
+- Remove changelog update on pr
 
 ### 🛡️ Security
 
