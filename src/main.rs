@@ -17,6 +17,7 @@ enum Command {
 }
 
 #[derive(Parser)]
+#[command(version, about, long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Command>,
@@ -50,6 +51,7 @@ async fn main() {
 #[cfg(test)]
 mod tests {
     use super::{Cli, Command};
+    use clap::error::ErrorKind;
     use clap::Parser;
 
     #[test]
@@ -68,5 +70,27 @@ mod tests {
             Some(Command::Run(args)) => assert!(args.is_demo()),
             _ => panic!("expected run subcommand"),
         }
+    }
+
+    #[test]
+    fn parses_short_version_flag() {
+        assert_version_flag("-V");
+    }
+
+    #[test]
+    fn parses_long_version_flag() {
+        assert_version_flag("--version");
+    }
+
+    fn assert_version_flag(flag: &str) {
+        let err = match Cli::try_parse_from(["vrcwatch-rs", flag]) {
+            Ok(_) => panic!("expected version display"),
+            Err(err) => err,
+        };
+
+        assert_eq!(err.kind(), ErrorKind::DisplayVersion);
+        assert!(err
+            .to_string()
+            .contains(&format!("vrcwatch-rs {}", env!("CARGO_PKG_VERSION"))));
     }
 }
