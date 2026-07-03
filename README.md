@@ -39,6 +39,7 @@ cargo build --release
 VRChatに入るときに、展開した`vrcwatch-rs.exe`をダブルクリックしてください。
 
 また、コマンドラインから起動する場合は以下のコマンドラインオプションをサポートしています。
+v0.6.0以降では、SteamVRの自動起動に登録することも可能です。
 
 -  `-a`, `--address <ADDRESS>` 送信先のIPアドレス (デフォルト: `127.0.0.1`)
 -  `-p`, `--port <PORT>`       送信先のポート (デフォルト: `9000`)
@@ -46,6 +47,9 @@ VRChatに入るときに、展開した`vrcwatch-rs.exe`をダブルクリック
 -  `--demo`                    デモモード 時刻を10:08:42に固定
 -  `-h`, `--help`              ヘルプ
 -  `-V`, `--version`           バージョンの表示
+- `status`                     SteamVRに登録済みかどうかを確認
+- `install`                    SteamVRの自動起動に登録。登録後はSteamVR起動時に自動でvrcwatch-rsが起動します。
+- `uninstall`                  SteamVRの自動起動から削除
 
 実行例を以下に示します。IPアドレスやポートは環境に合わせて変えてください。
 ```bash
