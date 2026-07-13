@@ -1,4 +1,7 @@
 use clap::{Parser, Subcommand};
+use std::error::Error;
+use std::path::PathBuf;
+use tracing::info;
 
 mod osc_sender;
 mod ovr_manifest;
@@ -26,8 +29,14 @@ struct Cli {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let cli = Cli::parse();
+    let debug = match &cli.command {
+        Some(Command::Run(args)) => args.debug_enabled(),
+        None => cli.run_args.debug_enabled(),
+        _ => false,
+    };
+    let _log_guard = initialize_logging(debug)?;
 
     match cli.command {
         Some(Command::Run(args)) => {
@@ -46,6 +55,42 @@ async fn main() {
             run_watch::run_watch(&cli.run_args).await;
         }
     }
+
+    Ok(())
+}
+
+fn initialize_logging(
+    debug: bool,
+) -> Result<tracing_appender::non_blocking::WorkerGuard, Box<dyn Error + Send + Sync>> {
+    let log_directory = log_directory()?;
+    std::fs::create_dir_all(&log_directory)?;
+
+    let file_appender = tracing_appender::rolling::daily(
+        &log_directory,
+        format!("{}.jsonl", env!("CARGO_PKG_NAME")),
+    );
+    let (writer, guard) = tracing_appender::non_blocking(file_appender);
+
+    tracing_subscriber::fmt()
+        .with_max_level(if debug {
+            tracing::Level::DEBUG
+        } else {
+            tracing::Level::INFO
+        })
+        .json()
+        .with_current_span(false)
+        .with_span_list(false)
+        .with_writer(writer)
+        .try_init()?;
+
+    info!(log_directory = %log_directory.display(), "File logging initialized");
+    Ok(guard)
+}
+
+fn log_directory() -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+    dirs::data_local_dir()
+        .map(|path| path.join("tech.qsys").join(env!("CARGO_PKG_NAME")))
+        .ok_or_else(|| "local data directory is unavailable".into())
 }
 
 #[cfg(test)]
