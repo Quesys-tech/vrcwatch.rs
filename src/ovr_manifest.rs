@@ -1,6 +1,7 @@
 use dirs::config_local_dir;
 use std::{env, path::PathBuf};
 use tokio::fs::remove_dir_all;
+use tracing::{error, info};
 extern crate openvr;
 use serde::Serialize;
 
@@ -28,13 +29,13 @@ pub async fn status() {
     match application.is_application_installed(OVR_APP_KEY) {
         Ok(installed) => {
             if installed {
-                println!("VRCWatch is installed in SteamVR.");
+                info!("VRCWatch is installed in SteamVR.");
             } else {
-                println!("VRCWatch is NOT installed in SteamVR.");
+                info!("VRCWatch is NOT installed in SteamVR.");
             }
         }
         Err(e) => {
-            eprintln!("Error checking VRCWatch installation status: {:?}", e);
+            error!(error = ?e, "Error checking VRCWatch installation status");
         }
     }
 }
@@ -123,24 +124,22 @@ pub async fn install() {
     match application.is_application_installed(OVR_APP_KEY) {
         Ok(installed) => {
             if installed {
-                println!("VRCWatch is already installed in SteamVR.");
-                println!(
-                    "If executable path has changed, please uninstall and reinstall VRCWatch."
-                );
+                info!("VRCWatch is already installed in SteamVR.");
+                info!("If executable path has changed, please uninstall and reinstall VRCWatch.");
             } else {
                 let manifest_path = create_manifest().await.expect("Failed to create manifest");
                 // Implementation for installing the manifest would go here
-                println!("Manifest created at: {:?}", manifest_path);
+                info!(manifest_path = ?manifest_path, "Manifest created");
                 match application.add_application_manifest(&manifest_path, false) {
                     Ok(_) => {
-                        println!("VRCWatch has been installed in SteamVR.");
-                        println!("If executable path has changed, please uninstall and reinstall VRCWatch.");
+                        info!("VRCWatch has been installed in SteamVR.");
+                        info!("If executable path has changed, please uninstall and reinstall VRCWatch.");
                     }
                     Err(openvr::errors::VRApplicationError::AppKeyAlreadyExists) => {
-                        println!("VRCWatch is already registered in SteamVR.");
+                        info!("VRCWatch is already registered in SteamVR.");
                     }
                     Err(e) => {
-                        eprintln!("Failed to install VRCWatch: {e:?}");
+                        error!(error = ?e, "Failed to install VRCWatch");
                         return;
                     }
                 }
@@ -148,13 +147,13 @@ pub async fn install() {
 
             match registration::configure_current_process(OVR_APP_KEY) {
                 Ok(_) => {
-                    println!("VRCWatch has been identified and enabled for SteamVR auto launch.")
+                    info!("VRCWatch has been identified and enabled for SteamVR auto launch.")
                 }
-                Err(e) => eprintln!("Failed to configure VRCWatch in SteamVR: {e}"),
+                Err(e) => error!(error = %e, "Failed to configure VRCWatch in SteamVR"),
             }
         }
         Err(e) => {
-            eprintln!("Error checking VRCWatch installation status: {e:?}");
+            error!(error = ?e, "Error checking VRCWatch installation status");
         }
     }
 }
@@ -171,7 +170,7 @@ pub async fn uninstall() {
             if installed {
                 let path = manifest_path().await;
                 if !path.exists() {
-                    eprintln!("Manifest file does not exist at expected path: {:?}", path);
+                    error!(manifest_path = ?path, "Manifest file does not exist at expected path");
                 } else {
                     application
                         .remove_application_manifest(&path)
@@ -179,14 +178,14 @@ pub async fn uninstall() {
                     remove_dir_all(path.parent().unwrap())
                         .await
                         .expect("Failed to remove manifest directory");
-                    println!("VRCWatch has been uninstalled from SteamVR.");
+                    info!("VRCWatch has been uninstalled from SteamVR.");
                 }
             } else {
-                println!("VRCWatch is not installed in SteamVR.");
+                info!("VRCWatch is not installed in SteamVR.");
             }
         }
         Err(e) => {
-            eprintln!("Error checking VRCWatch installation status: {:?}", e);
+            error!(error = ?e, "Error checking VRCWatch installation status");
         }
     }
 }

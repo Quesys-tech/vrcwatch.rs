@@ -37,6 +37,10 @@ impl Default for RunArgs {
 }
 
 impl RunArgs {
+    pub(crate) fn debug_enabled(&self) -> bool {
+        self.debug
+    }
+
     #[cfg(test)]
     pub(crate) fn is_demo(&self) -> bool {
         self.demo
@@ -158,14 +162,6 @@ async fn demo_mode(sender: osc_sender::OscSender) {
 }
 
 pub async fn run_watch(args: &RunArgs) {
-    tracing_subscriber::fmt()
-        .with_max_level(if args.debug {
-            tracing::Level::DEBUG
-        } else {
-            tracing::Level::INFO
-        })
-        .init();
-
     debug!("Debug mode enabled");
     info!("Destination port: {}:{}", args.address, args.port);
 
