@@ -2,6 +2,10 @@ use clap::{Parser, Subcommand};
 use std::error::Error;
 use std::path::PathBuf;
 use tracing::info;
+use tracing_subscriber::filter::LevelFilter;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+use tracing_subscriber::Layer;
 
 mod osc_sender;
 mod ovr_manifest;
@@ -70,17 +74,25 @@ fn initialize_logging(
         format!("{}.jsonl", env!("CARGO_PKG_NAME")),
     );
     let (writer, guard) = tracing_appender::non_blocking(file_appender);
+    let log_level = if debug {
+        LevelFilter::DEBUG
+    } else {
+        LevelFilter::INFO
+    };
 
-    tracing_subscriber::fmt()
-        .with_max_level(if debug {
-            tracing::Level::DEBUG
-        } else {
-            tracing::Level::INFO
-        })
+    let file_layer = tracing_subscriber::fmt::layer()
         .json()
         .with_current_span(false)
         .with_span_list(false)
         .with_writer(writer)
+        .with_filter(log_level);
+    let console_layer = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stderr)
+        .with_filter(log_level);
+
+    tracing_subscriber::registry()
+        .with(file_layer)
+        .with(console_layer)
         .try_init()?;
 
     info!(log_directory = %log_directory.display(), "File logging initialized");
