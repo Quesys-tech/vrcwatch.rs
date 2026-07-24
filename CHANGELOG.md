@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-07-24
+
+### 🚀 Features
+
+- Save logs into files
+- *(logging)* Enhance logging setup with JSON format and adjustable log levels
+
+### 🐛 Bug Fixes
+
+- *(workflow)* Add condition for pull request to prevent unintended loop
+- *(ci)* Show clippy result using reviewdog
+
+### 🔧 Dependencies
+
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+- *(deps)* Bump serde from 1.0.228 to 1.0.229
+- *(deps)* Bump serde_json from 1.0.150 to 1.0.151
+- *(deps)* Bump clap from 4.6.1 to 4.6.4
+- *(deps)* Bump actions/checkout in /.github/workflows
+- *(deps)* Bump tokio from 1.52.3 to 1.53.1
+
 ## [0.6.0] - 2026-07-03
 
 ### 🚀 Features
