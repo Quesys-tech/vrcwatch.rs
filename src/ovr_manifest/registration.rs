@@ -1,6 +1,7 @@
 use openvr_sys as ovr_sys;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
+use std::path::PathBuf;
 use std::process;
 
 pub(super) fn configure_current_process(app_key: &str) -> Result<(), String> {
@@ -9,6 +10,17 @@ pub(super) fn configure_current_process(app_key: &str) -> Result<(), String> {
 
     registration.identify_current_process(&app_key)?;
     registration.set_auto_launch(&app_key, true)
+}
+
+pub(super) fn registered_binary_path(app_key: &str) -> Result<PathBuf, String> {
+    let app_key = c_app_key(app_key)?;
+    let registration = OpenVrManifestRegistration::load()?;
+    let path = registration.application_property_string(
+        &app_key,
+        ovr_sys::EVRApplicationProperty_VRApplicationProperty_BinaryPath_String,
+    )?;
+
+    Ok(PathBuf::from(path))
 }
 
 struct OpenVrManifestRegistration(&'static ovr_sys::VR_IVRApplications_FnTable);
@@ -51,6 +63,57 @@ impl OpenVrManifestRegistration {
             .ok_or_else(|| "IVRApplications::SetApplicationAutoLaunch is unavailable".to_owned())?;
         let err = unsafe { set_auto_launch(app_key.as_ptr() as *mut c_char, enabled) };
         self.ensure_success("IVRApplications::SetApplicationAutoLaunch", err)
+    }
+
+    fn application_property_string(
+        &self,
+        app_key: &CStr,
+        property: ovr_sys::EVRApplicationProperty,
+    ) -> Result<String, String> {
+        let get_property = self.0.GetApplicationPropertyString.ok_or_else(|| {
+            "IVRApplications::GetApplicationPropertyString is unavailable".to_owned()
+        })?;
+        let mut error = ovr_sys::EVRApplicationError_VRApplicationError_None;
+        let required_length = unsafe {
+            get_property(
+                app_key.as_ptr().cast_mut(),
+                property,
+                std::ptr::null_mut(),
+                0,
+                &mut error,
+            )
+        };
+
+        if error != ovr_sys::EVRApplicationError_VRApplicationError_None
+            && error != ovr_sys::EVRApplicationError_VRApplicationError_BufferTooSmall
+        {
+            return Err(format!(
+                "IVRApplications::GetApplicationPropertyString failed: {}",
+                self.error_name(error)
+            ));
+        }
+        if required_length == 0 {
+            return Err(
+                "IVRApplications::GetApplicationPropertyString returned an empty value".to_owned(),
+            );
+        }
+
+        let mut buffer = vec![0_u8; required_length as usize];
+        error = ovr_sys::EVRApplicationError_VRApplicationError_None;
+        unsafe {
+            get_property(
+                app_key.as_ptr().cast_mut(),
+                property,
+                buffer.as_mut_ptr().cast(),
+                required_length,
+                &mut error,
+            )
+        };
+        self.ensure_success("IVRApplications::GetApplicationPropertyString", error)?;
+
+        CStr::from_bytes_until_nul(&buffer)
+            .map(|value| value.to_string_lossy().into_owned())
+            .map_err(|e| format!("Invalid application property string: {e}"))
     }
 
     fn ensure_success(
@@ -171,6 +234,38 @@ mod tests {
     }
 
     #[test]
+    fn application_property_string_reports_missing_function() {
+        let registration = registration_with_empty_table();
+        let app_key = CString::new("tech.qsys.test").unwrap();
+
+        assert_eq!(
+            registration.application_property_string(
+                &app_key,
+                ovr_sys::EVRApplicationProperty_VRApplicationProperty_BinaryPath_String,
+            ),
+            Err("IVRApplications::GetApplicationPropertyString is unavailable".to_owned())
+        );
+    }
+
+    #[test]
+    fn application_property_string_reads_the_returned_value() {
+        let table = ovr_sys::VR_IVRApplications_FnTable {
+            GetApplicationPropertyString: Some(test_application_property_string),
+            ..Default::default()
+        };
+        let registration = OpenVrManifestRegistration(Box::leak(Box::new(table)));
+        let app_key = CString::new("tech.qsys.test").unwrap();
+
+        assert_eq!(
+            registration.application_property_string(
+                &app_key,
+                ovr_sys::EVRApplicationProperty_VRApplicationProperty_BinaryPath_String,
+            ),
+            Ok(r"C:\Tools\vrcwatch-rs.exe".to_owned())
+        );
+    }
+
+    #[test]
     fn ensure_success_uses_numeric_fallback_without_error_name_function() {
         let registration = registration_with_empty_table();
 
@@ -197,5 +292,28 @@ mod tests {
         OpenVrManifestRegistration(Box::leak(Box::new(
             ovr_sys::VR_IVRApplications_FnTable::default(),
         )))
+    }
+
+    unsafe extern "C" fn test_application_property_string(
+        _app_key: *mut c_char,
+        _property: ovr_sys::EVRApplicationProperty,
+        buffer: *mut c_char,
+        buffer_length: u32,
+        error: *mut ovr_sys::EVRApplicationError,
+    ) -> u32 {
+        const VALUE: &[u8] = b"C:\\Tools\\vrcwatch-rs.exe\0";
+
+        if buffer_length < VALUE.len() as u32 {
+            unsafe {
+                *error = ovr_sys::EVRApplicationError_VRApplicationError_BufferTooSmall;
+            }
+            return VALUE.len() as u32;
+        }
+
+        unsafe {
+            std::ptr::copy_nonoverlapping(VALUE.as_ptr().cast(), buffer, VALUE.len());
+            *error = ovr_sys::EVRApplicationError_VRApplicationError_None;
+        }
+        VALUE.len() as u32
     }
 }
