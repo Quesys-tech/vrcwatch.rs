@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-09-02
+
+### 🚀 Features
+
+- Add status check for registered executable path in SteamVR
+
+### 🔧 Dependencies
+
+- *(deps)* Bump clap from 4.6.4 to 4.6.6
+- *(deps)* Bump Swatinem/rust-cache in /.github/workflows
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+
 ## [0.7.0] - 2026-07-24
 
 ### 🚀 Features
