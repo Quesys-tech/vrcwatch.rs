@@ -1,5 +1,8 @@
 use dirs::config_local_dir;
-use std::{env, path::PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 use tokio::fs::remove_dir_all;
 use tracing::{error, info};
 extern crate openvr;
@@ -30,6 +33,7 @@ pub async fn status() {
         Ok(installed) => {
             if installed {
                 info!("VRCWatch is installed in SteamVR.");
+                check_registered_executable_path();
             } else {
                 info!("VRCWatch is NOT installed in SteamVR.");
             }
@@ -39,6 +43,47 @@ pub async fn status() {
         }
     }
 }
+
+fn check_registered_executable_path() {
+    let current_path = match env::current_exe() {
+        Ok(path) => path,
+        Err(e) => {
+            error!(error = ?e, "Failed to get the current executable path");
+            return;
+        }
+    };
+    let registered_path = match registration::registered_binary_path(OVR_APP_KEY) {
+        Ok(path) => path,
+        Err(e) => {
+            error!(error = %e, "Failed to get the executable path registered in SteamVR");
+            return;
+        }
+    };
+
+    if executable_paths_match(&registered_path, &current_path) {
+        info!(
+            registered_path = %registered_path.display(),
+            current_path = %current_path.display(),
+            "The registered executable path matches the current executable."
+        );
+    } else {
+        error!(
+            registered_path = %registered_path.display(),
+            current_path = %current_path.display(),
+            "The registered executable path does NOT match the current executable. Please uninstall and reinstall VRCWatch."
+        );
+    }
+}
+
+fn executable_paths_match(registered_path: &Path, current_path: &Path) -> bool {
+    let registered_path =
+        std::fs::canonicalize(registered_path).unwrap_or_else(|_| registered_path.to_path_buf());
+    let current_path =
+        std::fs::canonicalize(current_path).unwrap_or_else(|_| current_path.to_path_buf());
+
+    registered_path == current_path
+}
+
 #[derive(Debug, Serialize)]
 struct SteamVrManifest {
     applications: [SteamVrApplication; 1],
@@ -187,5 +232,27 @@ pub async fn uninstall() {
         Err(e) => {
             error!(error = ?e, "Error checking VRCWatch installation status");
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::executable_paths_match;
+    use std::path::Path;
+
+    #[test]
+    fn executable_paths_match_for_identical_paths() {
+        assert!(executable_paths_match(
+            Path::new("test/path/vrcwatch-rs"),
+            Path::new("test/path/vrcwatch-rs")
+        ));
+    }
+
+    #[test]
+    fn executable_paths_do_not_match_for_different_paths() {
+        assert!(!executable_paths_match(
+            Path::new("old/path/vrcwatch-rs"),
+            Path::new("new/path/vrcwatch-rs")
+        ));
     }
 }
