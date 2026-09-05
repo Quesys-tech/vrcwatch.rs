@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2026-09-05
+
+### 🔧 Dependencies
+
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+
 ## [0.8.0] - 2026-09-02
 
 ### 🚀 Features
