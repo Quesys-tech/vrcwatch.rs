@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2026-09-26
+
+### 🔧 Dependencies
+
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+- *(deps)* Bump orhun/git-cliff-action in /.github/workflows
+- *(deps)* Bump dirs from 6.0.0 to 7.0.0
+- *(deps)* Bump orhun/git-cliff-action in /.github/workflows
+
 ## [0.8.0] - 2026-09-02
 
 ### 🚀 Features
