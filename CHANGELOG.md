@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] - 2026-10-10
+
+### 🔧 Dependencies
+
+- *(deps)* Bump tokio from 1.53.1 to 1.53.2
+- *(deps)* Bump clap from 4.6.6 to 4.6.7
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Add step to prepare release PR body from CHANGELOG.md
+
 ## [0.8.1] - 2026-09-26
 
 ### 🔧 Dependencies
