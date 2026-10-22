@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.8.2] - 2026-10-10
+## [0.8.3] - 2026-10-22
+
+### 🔧 Dependencies
+
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+- *(deps)* Bump serde_json from 1.0.151 to 1.0.154
+- *(deps)* Bump tokio from 1.53.2 to 1.53.3
+
+## [0.8.2] - 2026-10-11
 
 ### 🔧 Dependencies
 
