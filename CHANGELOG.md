@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.8.3] - 2026-10-22
+## [0.8.4] - 2026-10-29
+
+### 🔧 Dependencies
+
+- *(deps)* Bump tokio from 1.53.3 to 1.54.1
+
+## [0.8.3] - 2026-10-25
 
 ### 🔧 Dependencies
 
