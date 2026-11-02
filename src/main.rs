@@ -10,6 +10,7 @@ use tracing_subscriber::Layer;
 mod osc_sender;
 mod ovr_manifest;
 mod run_watch;
+mod update_check;
 
 #[derive(Subcommand)]
 enum Command {
@@ -26,10 +27,19 @@ enum Command {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
+    /// Disable the startup check for new GitHub releases
+    #[arg(long, global = true)]
+    no_update_check: bool,
     #[command(subcommand)]
     command: Option<Command>,
     #[command(flatten)]
     run_args: run_watch::RunArgs,
+}
+
+impl Cli {
+    fn should_check_for_updates(&self) -> bool {
+        !self.no_update_check && matches!(self.command, None | Some(Command::Run(_)))
+    }
 }
 
 #[tokio::main]
@@ -41,6 +51,9 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         _ => false,
     };
     let _log_guard = initialize_logging(debug)?;
+    let update_check_task = cli
+        .should_check_for_updates()
+        .then(|| tokio::spawn(update_check::check_for_updates()));
 
     match cli.command {
         Some(Command::Run(args)) => {
@@ -58,6 +71,12 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         None => {
             run_watch::run_watch(&cli.run_args).await;
         }
+    }
+
+    if let Some(task) = update_check_task {
+        // Do not delay shutdown for an outstanding network request.
+        task.abort();
+        let _ = task.await;
     }
 
     Ok(())
@@ -112,10 +131,49 @@ mod tests {
     use clap::Parser;
 
     #[test]
+    fn checks_for_updates_only_for_watch_commands() {
+        for args in [vec!["vrcwatch-rs"], vec!["vrcwatch-rs", "run"]] {
+            let cli = Cli::try_parse_from(args).unwrap();
+            assert!(cli.should_check_for_updates());
+        }
+        for command in ["status", "install", "uninstall"] {
+            let cli = Cli::try_parse_from(["vrcwatch-rs", command]).unwrap();
+            assert!(!cli.should_check_for_updates());
+        }
+    }
+
+    #[test]
+    fn parses_no_update_check_before_and_after_run() {
+        for args in [
+            vec!["vrcwatch-rs", "--no-update-check"],
+            vec!["vrcwatch-rs", "run", "--no-update-check"],
+            vec!["vrcwatch-rs", "--no-update-check", "run"],
+        ] {
+            let cli = Cli::try_parse_from(args).unwrap();
+            assert!(cli.no_update_check);
+            assert!(!cli.should_check_for_updates());
+        }
+    }
+
+    #[test]
+    fn help_exits_during_parsing() {
+        for args in [
+            vec!["vrcwatch-rs", "--help"],
+            vec!["vrcwatch-rs", "run", "--help"],
+        ] {
+            let Err(err) = Cli::try_parse_from(args) else {
+                panic!("expected help display");
+            };
+            assert_eq!(err.kind(), ErrorKind::DisplayHelp);
+            assert!(err.to_string().contains("--no-update-check"));
+        }
+    }
+
+    #[test]
     fn parses_demo_as_default_run_option() {
         let cli = Cli::try_parse_from(["vrcwatch-rs", "--demo"]).unwrap();
 
-        assert!(matches!(cli.command, None));
+        assert!(cli.command.is_none());
         assert!(cli.run_args.is_demo());
     }
 

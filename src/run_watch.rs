@@ -84,36 +84,6 @@ async fn calc_moon_phase<Tz: TimeZone>(local_time: &DateTime<Tz>) -> f32 {
     let d = time::Date::from_unix(unix_time);
     moon::MOON.phaseangle(d).turns() as f32
 }
-#[cfg(test)]
-mod tests {
-    use super::calc_moon_phase;
-    use chrono::{TimeZone, Utc};
-    #[tokio::test]
-    async fn test_calc_moon_phase() {
-        let full_moon_list = [
-            (2025, 1, 13, 22, 27),
-            (2025, 2, 12, 13, 53),
-            (2025, 3, 14, 6, 55),
-            (2025, 4, 13, 0, 22),
-            (2025, 5, 12, 16, 56),
-            (2025, 6, 11, 07, 44),
-        ];
-
-        for (year, month, day, hour, min) in full_moon_list {
-            let local_time = Utc
-                .with_ymd_and_hms(year, month, day, hour, min, 0)
-                .unwrap();
-            let moon_phase = calc_moon_phase(&local_time).await;
-            let error = moon_phase - 0.5;
-            assert!(
-                error.abs() < 0.01 / 0.5, // 1% error
-                "full moon at {}: calc:{}",
-                local_time,
-                moon_phase
-            );
-        }
-    }
-}
 
 async fn tick_watch(sender: &osc_sender::OscSender) -> Result<(), Box<dyn Error>> {
     let now = Local::now();
@@ -185,4 +155,35 @@ pub async fn run_watch(args: &RunArgs) {
         }
     }
     info!("Exiting...");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::calc_moon_phase;
+    use chrono::{TimeZone, Utc};
+    #[tokio::test]
+    async fn test_calc_moon_phase() {
+        let full_moon_list = [
+            (2025, 1, 13, 22, 27),
+            (2025, 2, 12, 13, 53),
+            (2025, 3, 14, 6, 55),
+            (2025, 4, 13, 0, 22),
+            (2025, 5, 12, 16, 56),
+            (2025, 6, 11, 7, 44),
+        ];
+
+        for (year, month, day, hour, min) in full_moon_list {
+            let local_time = Utc
+                .with_ymd_and_hms(year, month, day, hour, min, 0)
+                .unwrap();
+            let moon_phase = calc_moon_phase(&local_time).await;
+            let error = moon_phase - 0.5;
+            assert!(
+                error.abs() < 0.01 / 0.5, // 1% error
+                "full moon at {}: calc:{}",
+                local_time,
+                moon_phase
+            );
+        }
+    }
 }
