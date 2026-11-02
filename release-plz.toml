@@ -1,0 +1,7 @@
+[workspace]
+# This application is distributed through GitHub Releases, not crates.io.
+git_only = true
+git_tag_name = "v{{ version }}"
+changelog_config = "cliff.toml"
+features_always_increment_minor = true
+pr_name = "chore(release): prepare for v{{ version }}"
