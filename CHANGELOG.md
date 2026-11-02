@@ -2,7 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.8.3] - 2026-10-22
+## [0.9.0] - 2026-11-02
+
+### 🚀 Features
+
+- Add update check feature with GitHub releases
+
+### 🔧 Dependencies
+
+- *(deps)* Bump tokio from 1.53.3 to 1.54.1
+- *(deps)* Bump Swatinem/rust-cache in /.github/workflows
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+
+## [0.8.3] - 2026-10-25
 
 ### 🔧 Dependencies
 
