@@ -45,6 +45,7 @@ v0.6.0以降では、SteamVRの自動起動に登録することも可能です�
 -  `-p`, `--port <PORT>`       送信先のポート (デフォルト: `9000`)
 -  `--debug`                   詳細な出力
 -  `--demo`                    デモモード 時刻を10:08:42に固定
+-  `--no-update-check`         起動時の更新確認を無効化
 -  `-h`, `--help`              ヘルプ
 -  `-V`, `--version`           バージョンの表示
 - `status`                     SteamVRに登録済みかどうかを確認
@@ -55,6 +56,19 @@ v0.6.0以降では、SteamVRの自動起動に登録することも可能です�
 ```bash
 ./target/release/vrcwatch-rs.exe -a 192.0.2.1 -p 9876
 ```
+
+### 起動時の更新確認
+
+通常起動時と `run` サブコマンドでの起動時に、新しい安定版があるか確認します。新しいバージョンがある場合は、実行中のバージョン、最新版、Release ページの URL をコンソールと既存のログファイルに出力します。更新確認に失敗しても時計の送信は継続します。
+
+更新確認を無効にする場合は、以下のように `--no-update-check` を指定してください。SteamVR の自動起動時も通常起動と同じように更新確認します。
+
+```bash
+vrcwatch-rs --no-update-check
+vrcwatch-rs run --no-update-check
+```
+
+`status`、`install`、`uninstall`、`--version`、`--help` では更新確認しません。
 
 ## 出力するOSCのパラメータ
 
