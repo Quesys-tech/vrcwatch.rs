@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.1] - 2026-11-21
+
+### 🔧 Dependencies
+
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+- *(deps)* Bump taiki-e/create-gh-release-action in /.github/workflows
+- *(deps)* Bump release-plz/action in /.github/workflows
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update release preparation workflow and changelog configuration
+
+
+
 ## [0.9.0] - 2026-11-02
 
 ### 🚀 Features
