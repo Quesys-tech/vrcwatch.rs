@@ -48,7 +48,7 @@ v0.6.0以降では、SteamVRの自動起動に登録することも可能です�
 -  `--no-update-check`         起動時の更新確認を無効化
 -  `-h`, `--help`              ヘルプ
 -  `-V`, `--version`           バージョンの表示
-- `status`                     SteamVRに登録済みかどうかを確認
+- `status`                     SteamVRの登録状態と実行ファイルのパスを確認
 - `install`                    SteamVRの自動起動に登録。登録後はSteamVR起動時に自動でvrcwatch-rsが起動します。
 - `uninstall`                  SteamVRの自動起動から削除
 
@@ -56,6 +56,10 @@ v0.6.0以降では、SteamVRの自動起動に登録することも可能です�
 ```bash
 ./target/release/vrcwatch-rs.exe -a 192.0.2.1 -p 9876
 ```
+
+### SteamVRに登録した実行ファイルを移動した場合
+
+実行ファイルを移動・改名した場合は、現在の実行ファイルで `status` を実行してください。SteamVRに登録されたパスと現在のパスが異なる場合は、両方のパスと再インストールの手順を表示します。`status` は確認のみを行い、自動で登録を変更しません。
 
 ### 起動時の更新確認
 
