@@ -60,7 +60,11 @@ fn check_registered_executable_path() {
         }
     };
 
-    if executable_paths_match(&registered_path, &current_path) {
+    report_executable_path_status(&registered_path, &current_path);
+}
+
+fn report_executable_path_status(registered_path: &Path, current_path: &Path) {
+    if executable_paths_match(registered_path, current_path) {
         info!(
             registered_path = %registered_path.display(),
             current_path = %current_path.display(),
@@ -70,7 +74,7 @@ fn check_registered_executable_path() {
         error!(
             registered_path = %registered_path.display(),
             current_path = %current_path.display(),
-            "The registered executable path does NOT match the current executable. Please uninstall and reinstall VRCWatch."
+            "The registered executable path does NOT match the current executable. To reinstall VRCWatch in SteamVR, run the current executable with 'uninstall', then with 'install'."
         );
     }
 }
@@ -237,8 +241,10 @@ pub async fn uninstall() {
 
 #[cfg(test)]
 mod tests {
-    use super::executable_paths_match;
+    use super::{executable_paths_match, report_executable_path_status};
+    use std::io::{self, Write};
     use std::path::Path;
+    use std::sync::{Arc, Mutex};
 
     #[test]
     fn executable_paths_match_for_identical_paths() {
@@ -254,5 +260,87 @@ mod tests {
             Path::new("old/path/vrcwatch-rs"),
             Path::new("new/path/vrcwatch-rs")
         ));
+    }
+
+    #[test]
+    fn matching_paths_do_not_suggest_reinstallation() {
+        let current_path = std::env::current_exe().unwrap();
+        let equivalent_path = current_path
+            .parent()
+            .unwrap()
+            .join(".")
+            .join(current_path.file_name().unwrap());
+
+        for registered_path in [&current_path, &equivalent_path] {
+            let log = executable_path_status_log(registered_path, &current_path);
+            let message = log["fields"]["message"].as_str().unwrap();
+
+            assert_eq!(log["level"], "INFO");
+            assert!(message.contains("matches the current executable"));
+            assert!(!message.contains("uninstall"));
+            assert!(!message.contains("reinstall"));
+        }
+    }
+
+    #[test]
+    fn moved_or_renamed_executable_suggests_reinstallation_even_if_old_path_is_missing() {
+        let current_path = std::env::current_exe().unwrap();
+        let moved_path = current_path
+            .parent()
+            .unwrap()
+            .join("previous VRCWatch installation")
+            .join(current_path.file_name().unwrap());
+        let renamed_path = current_path.with_file_name("previous-vrcwatch-rs.exe");
+
+        for registered_path in [&moved_path, &renamed_path] {
+            assert!(!registered_path.exists());
+            let log = executable_path_status_log(registered_path, &current_path);
+            let fields = &log["fields"];
+            let message = fields["message"].as_str().unwrap();
+
+            assert_eq!(
+                fields["registered_path"],
+                registered_path.display().to_string()
+            );
+            assert_eq!(fields["current_path"], current_path.display().to_string());
+            assert!(message.contains("run the current executable"));
+            let uninstall = message.find("'uninstall'").unwrap();
+            let install = message.find("'install'").unwrap();
+            assert!(uninstall < install);
+        }
+    }
+
+    #[derive(Clone, Default)]
+    struct LogBuffer(Arc<Mutex<Vec<u8>>>);
+
+    impl Write for LogBuffer {
+        fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+            self.0.lock().unwrap().extend_from_slice(bytes);
+            Ok(bytes.len())
+        }
+
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    fn executable_path_status_log(
+        registered_path: &Path,
+        current_path: &Path,
+    ) -> serde_json::Value {
+        let buffer = LogBuffer::default();
+        let writer = buffer.clone();
+        let subscriber = tracing_subscriber::fmt()
+            .json()
+            .without_time()
+            .with_writer(move || writer.clone())
+            .finish();
+
+        tracing::subscriber::with_default(subscriber, || {
+            report_executable_path_status(registered_path, current_path);
+        });
+
+        let bytes = buffer.0.lock().unwrap();
+        serde_json::from_slice(&bytes).unwrap()
     }
 }
