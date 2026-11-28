@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2026-11-28
+
+### 🚀 Features
+
+- Improve guidance for SteamVR executable path mismatches
+
+### 🔧 Dependencies
+
+- *(deps)* Bump taiki-e/install-action in /.github/workflows
+- *(deps)* Bump clap from 4.6.7 to 4.6.9
+
+### ⚙️ Miscellaneous Tasks
+
+- Run release preparation on workflow dispatch
+
+
+
 ## [0.9.1] - 2026-11-21
 
 ### 🔧 Dependencies
